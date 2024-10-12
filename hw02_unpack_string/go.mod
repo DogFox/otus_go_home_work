@@ -1,4 +1,4 @@
-module github.com/DogFox/otus_go_home_work/hw01_hello_otus
+module github.com/DogFox/otus_go_home_work/hw02_unpack_string
 
 go 1.22
 
