@@ -9,6 +9,13 @@ import (
 
 var ErrInvalidString = errors.New("invalid string")
 
+func isDigit(str string) bool {
+	if string('0') <= str && str <= string('9') {
+		return true
+	}
+	return false
+}
+
 func Unpack(str string) (string, error) {
 	lenQueue := utf8.RuneCountInString(str)
 	queue := make([]string, lenQueue)
@@ -28,8 +35,7 @@ func Unpack(str string) (string, error) {
 
 		// fmt.Println(first, " ", second, " len ", len(queue))
 		// низя чтобы сразу чиселка была
-		_, err := strconv.Atoi(first)
-		if err == nil {
+		if isDigit(first) {
 			if !shield {
 				return "", ErrInvalidString
 			}
@@ -56,7 +62,7 @@ func Unpack(str string) (string, error) {
 			continue
 		}
 		result.WriteString(strings.Repeat(first, times))
-		// fmt.Println(result)
+		// fmt.Println(result.String())
 
 		// Переопределяем очередь сразу на 2 элемента, но если последний, то так и быть...
 		if len(queue) >= 2 {
