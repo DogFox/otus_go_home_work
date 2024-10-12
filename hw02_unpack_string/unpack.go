@@ -16,7 +16,7 @@ func Unpack(str string) (string, error) {
 		queue[i] = string(v)
 	}
 
-	result := ""
+	result := strings.Builder{}
 	shield := false
 
 	for len(queue) > 0 {
@@ -49,13 +49,13 @@ func Unpack(str string) (string, error) {
 				return "", ErrInvalidString
 			}
 			// значит тут символ а не цифра, плюсуем и двигаем дальше
-			result += first
+			result.WriteString(first)
 			queue = queue[1:]
 			shield = false
 
 			continue
 		}
-		result += strings.Repeat(first, times)
+		result.WriteString(strings.Repeat(first, times))
 		// fmt.Println(result)
 
 		// Переопределяем очередь сразу на 2 элемента, но если последний, то так и быть...
@@ -65,5 +65,5 @@ func Unpack(str string) (string, error) {
 			queue = queue[1:]
 		}
 	}
-	return result, nil
+	return result.String(), nil
 }
