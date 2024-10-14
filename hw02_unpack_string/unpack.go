@@ -4,23 +4,23 @@ import (
 	"errors"
 	"strconv"
 	"strings"
-	"unicode/utf8"
 )
 
 var ErrInvalidString = errors.New("invalid string")
 
 func isDigit(str string) bool {
-	if string('0') <= str && str <= string('9') {
-		return true
-	}
-	return false
+	return string('0') <= str && str <= string('9')
 }
 
 func Unpack(str string) (string, error) {
-	lenQueue := utf8.RuneCountInString(str)
-	queue := make([]string, lenQueue)
-	for i, v := range str {
-		queue[i] = string(v)
+	runes := []rune(str)
+	lenStr := len(runes)
+	queue := make([]string, lenStr)
+
+	// fmt.Println(str, lenStr)
+	for i := 0; i < lenStr; i++ {
+		// fmt.Println(i, runes[i])
+		queue[i] = string(runes[i])
 	}
 
 	result := strings.Builder{}
