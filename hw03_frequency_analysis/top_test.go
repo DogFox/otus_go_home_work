@@ -3,11 +3,11 @@ package hw03frequencyanalysis
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require" //nolint: depguard
 )
 
 // Change to true if needed.
-var taskWithAsteriskIsCompleted = false
+var taskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -79,4 +79,42 @@ func TestTop10(t *testing.T) {
 			require.Equal(t, expected, Top10(text))
 		}
 	})
+}
+
+func TestSplitSymbol(t *testing.T) {
+	tests := []struct {
+		input    rune
+		expected bool
+	}{
+		{input: ' ', expected: true},
+		{input: ',', expected: true},
+		{input: 'a', expected: false},
+		{input: '-', expected: false},
+		{input: '9', expected: false},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(string(tc.input), func(t *testing.T) {
+			result := splitBySymbolsWithoutDash(tc.input)
+			require.Equal(t, tc.expected, result)
+		})
+	}
+}
+
+func TestPrepareMap(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected map[string]int
+	}{
+		{input: "ab ba", expected: map[string]int{"ab": 1, "ba": 1}},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.input, func(t *testing.T) {
+			result := prepareMap(tc.input)
+			require.Equal(t, tc.expected, result)
+		})
+	}
 }
