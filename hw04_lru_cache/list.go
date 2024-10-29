@@ -39,11 +39,13 @@ func (list *list) PushFront(v interface{}) *ListItem {
 		Prev:  nil,
 	}
 	if list.len == 0 {
-		list.first = newItem
 		list.last = newItem
+	} else {
+		list.first.Prev = newItem
 	}
-	list.IncreaseCount()
 	list.first = newItem
+
+	list.IncreaseCount()
 	// list.items = append(list.items, *newItem)
 
 	return newItem
@@ -54,8 +56,14 @@ func (list *list) PushBack(v interface{}) *ListItem {
 		Next:  nil,
 		Prev:  list.last,
 	}
-	list.IncreaseCount()
+	if list.len == 0 {
+		list.first = newItem
+	} else {
+		list.last.Next = newItem
+	}
 	list.last = newItem
+
+	list.IncreaseCount()
 	// list.items = append(list.items, *newItem)
 
 	return newItem
@@ -71,16 +79,39 @@ func (list *list) Back() *ListItem {
 
 // удалить элемент
 func (list *list) Remove(deleted *ListItem) {
-	deleted.Prev.Next = deleted.Next
-	deleted.Next.Prev = deleted.Prev
-	list.DecreaseCount()
+	wasDeleted := false
+	if deleted.Prev != nil {
+		wasDeleted = true
+		deleted.Prev.Next = deleted.Next
+	}
+	if deleted.Next != nil {
+		wasDeleted = true
+		deleted.Next.Prev = deleted.Prev
+	}
+	// если флаг не поднимали - то нам передали какую то фигню не из списка
+	if wasDeleted {
+		list.DecreaseCount()
+	}
 }
 
 // переместить элемент в начало
 func (list *list) MoveToFront(moved *ListItem) {
+	// нет смысла вперед двигать то что спереди
+	if moved.Prev == nil {
+		return
+	}
+
+	// если последний взяли - то обновим лист
+	if moved.Next != nil {
+		moved.Next.Prev = moved.Prev
+	} else {
+		list.last = moved.Prev
+	}
+
 	moved.Prev.Next = moved.Next
-	moved.Next.Prev = moved.Prev
+	moved.Next = list.first
 	list.first.Prev = moved
+	list.first = moved
 	moved.Prev = nil
 }
 
