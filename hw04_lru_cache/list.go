@@ -17,7 +17,6 @@ type ListItem struct {
 }
 
 type list struct {
-	// items []ListItem
 	len   int
 	first *ListItem
 	last  *ListItem
@@ -26,10 +25,10 @@ type list struct {
 func (list *list) Len() int {
 	return list.len //len(list.items)
 }
-func (list *list) IncreaseCount() {
+func (list *list) increaseCount() {
 	list.len++
 }
-func (list *list) DecreaseCount() {
+func (list *list) decreaseCount() {
 	list.len--
 }
 func (list *list) PushFront(v interface{}) *ListItem {
@@ -45,8 +44,7 @@ func (list *list) PushFront(v interface{}) *ListItem {
 	}
 	list.first = newItem
 
-	list.IncreaseCount()
-	// list.items = append(list.items, *newItem)
+	list.increaseCount()
 
 	return newItem
 }
@@ -63,8 +61,7 @@ func (list *list) PushBack(v interface{}) *ListItem {
 	}
 	list.last = newItem
 
-	list.IncreaseCount()
-	// list.items = append(list.items, *newItem)
+	list.increaseCount()
 
 	return newItem
 }
@@ -90,7 +87,7 @@ func (list *list) Remove(deleted *ListItem) {
 	}
 	// если флаг не поднимали - то нам передали какую то фигню не из списка
 	if wasDeleted {
-		list.DecreaseCount()
+		list.decreaseCount()
 	}
 }
 
