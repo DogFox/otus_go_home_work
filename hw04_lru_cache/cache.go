@@ -26,7 +26,9 @@ func (cache *lruCache) Set(key Key, value interface{}) bool {
 	// ключ может быть, тогда обновим
 
 	newCacheItem := cacheItem{key: key, value: value}
+	cache.mutex.Lock()
 	val, ok := cache.items[key]
+	cache.mutex.Unlock()
 	if ok {
 		val.Value = newCacheItem
 		cache.mutex.Lock()
@@ -42,6 +44,7 @@ func (cache *lruCache) Set(key Key, value interface{}) bool {
 				delete(cache.items, typedItem.key)
 				cache.queue.Remove(lastItem)
 			}
+			cache.mutex.Unlock()
 			return false
 		}
 		newItem := cache.queue.PushFront(newCacheItem)
@@ -53,21 +56,21 @@ func (cache *lruCache) Set(key Key, value interface{}) bool {
 }
 
 func (cache *lruCache) Get(key Key) (interface{}, bool) {
+	cache.mutex.Lock()
 	val, ok := cache.items[key]
 	if ok {
-		cache.mutex.Lock()
 		cache.queue.MoveToFront(val)
-		cache.mutex.Unlock()
 		typedItem, ok := val.Value.(cacheItem)
 		if ok {
-			cache.mutex.Lock()
 			cache.queue.PushFront(val)
 			cache.queue.Remove(val)
 			cache.mutex.Unlock()
 			return typedItem.value, ok
 		}
+		cache.mutex.Unlock()
 		return nil, false
 	} else {
+		cache.mutex.Unlock()
 		return nil, false
 	}
 }
@@ -82,6 +85,7 @@ func (cache *lruCache) Clear() {
 
 func NewCache(capacity int) Cache {
 	return &lruCache{
+		mutex:    sync.Mutex{},
 		capacity: capacity,
 		queue:    NewList(),
 		items:    make(map[Key]*ListItem, capacity),
