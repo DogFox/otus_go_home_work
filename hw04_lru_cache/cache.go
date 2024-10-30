@@ -50,7 +50,6 @@ func (cache *lruCache) Set(key Key, value interface{}) bool {
 		newItem := cache.queue.PushFront(newCacheItem)
 		cache.items[key] = newItem
 		cache.mutex.Unlock()
-
 	}
 	return ok
 }
@@ -64,22 +63,21 @@ func (cache *lruCache) Get(key Key) (interface{}, bool) {
 		if ok {
 			cache.queue.PushFront(val)
 			cache.queue.Remove(val)
+
 			cache.mutex.Unlock()
 			return typedItem.value, ok
 		}
 		cache.mutex.Unlock()
 		return nil, false
-	} else {
-		cache.mutex.Unlock()
-		return nil, false
 	}
+	cache.mutex.Unlock()
+	return nil, false
 }
 
 func (cache *lruCache) Clear() {
 	cache.mutex.Lock()
 	cache.queue = NewList()
-	cache.items =
-		make(map[Key]*ListItem, cache.capacity)
+	cache.items = make(map[Key]*ListItem, cache.capacity)
 	cache.mutex.Unlock()
 }
 

@@ -23,14 +23,17 @@ type list struct {
 }
 
 func (list *list) Len() int {
-	return list.len //len(list.items)
+	return list.len
 }
+
 func (list *list) increaseCount() {
 	list.len++
 }
+
 func (list *list) decreaseCount() {
 	list.len--
 }
+
 func (list *list) PushFront(v interface{}) *ListItem {
 	newItem := &ListItem{
 		Value: v,
@@ -48,6 +51,7 @@ func (list *list) PushFront(v interface{}) *ListItem {
 
 	return newItem
 }
+
 func (list *list) PushBack(v interface{}) *ListItem {
 	newItem := &ListItem{
 		Value: v,
@@ -74,7 +78,7 @@ func (list *list) Back() *ListItem {
 	return list.last
 }
 
-// удалить элемент
+// удалить элемент.
 func (list *list) Remove(deleted *ListItem) {
 	wasDeleted := false
 	if deleted.Prev != nil {
@@ -91,7 +95,7 @@ func (list *list) Remove(deleted *ListItem) {
 	}
 }
 
-// переместить элемент в начало
+// переместить элемент в начало.
 func (list *list) MoveToFront(moved *ListItem) {
 	// нет смысла вперед двигать то что спереди
 	if moved.Prev == nil {
