@@ -3,7 +3,7 @@ package hw04lrucache
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require" //nolint: depguard
 )
 
 func TestList(t *testing.T) {
@@ -47,5 +47,61 @@ func TestList(t *testing.T) {
 			elems = append(elems, i.Value.(int))
 		}
 		require.Equal(t, []int{70, 80, 60, 40, 10, 30, 50}, elems)
+	})
+
+	t.Run("complex struct", func(t *testing.T) {
+		type testStruct struct {
+			value interface{} // значение
+			key   string
+		}
+
+		l := NewList()
+
+		testStruct1 := testStruct{
+			value: 101,
+			key:   "number",
+		}
+
+		testStruct2 := testStruct{
+			value: "101 долматинец",
+			key:   "string",
+		}
+
+		l.PushFront(testStruct1)
+		require.Equal(t, 1, l.Len())
+		l.PushFront(testStruct2)
+		require.Equal(t, 2, l.Len())
+
+		elems := make([]testStruct, 0, l.Len())
+		for i := l.Front(); i != nil; i = i.Next {
+			elems = append(elems, i.Value.(testStruct))
+		}
+		require.Equal(t, []testStruct{
+			{
+				value: "101 долматинец",
+				key:   "string",
+			},
+			{
+				value: 101,
+				key:   "number",
+			},
+		}, elems)
+
+		l.MoveToFront(l.Back())
+
+		elems = make([]testStruct, 0, l.Len())
+		for i := l.Front(); i != nil; i = i.Next {
+			elems = append(elems, i.Value.(testStruct))
+		}
+		require.Equal(t, []testStruct{
+			{
+				value: 101,
+				key:   "number",
+			},
+			{
+				value: "101 долматинец",
+				key:   "string",
+			},
+		}, elems)
 	})
 }
