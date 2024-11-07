@@ -39,7 +39,7 @@ func worker(wg *sync.WaitGroup, input <-chan Task, output chan<- error, quit cha
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, workersCount, maxErrorsCount int) error {
 	/// канал с тасками
-	inputCh := make(chan Task, len(tasks))
+	inputCh := make(chan Task)
 	defer close(inputCh)
 	// канал для сбора результатов
 	outputCh := make(chan error, len(tasks))
@@ -58,16 +58,13 @@ func Run(tasks []Task, workersCount, maxErrorsCount int) error {
 	}
 
 	// скармливаем задачи
-	for i := range tasks {
-		inputCh <- tasks[i]
-	}
-
 	maxErrorReached := false
-	for {
+	for i := range tasks {
 		if len(outputCh) >= maxErrorsCount && !maxErrorReached {
 			maxErrorReached = true
 			break
 		}
+		inputCh <- tasks[i]
 	}
 
 	// хочется чтобы сигнальный канал был как флаг
@@ -100,8 +97,8 @@ func main() {
 		})
 	}
 
-	workersCount := 2
-	maxErrorsCount := 30
+	workersCount := 10
+	maxErrorsCount := 23
 	Run(tasks, workersCount, maxErrorsCount)
 
 }
