@@ -13,7 +13,7 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type Task func() error
 
-func worker(wg *sync.WaitGroup, input <-chan Task, output chan<- error, quit chan bool, maxErrorsCount int) {
+func worker(wg *sync.WaitGroup, input <-chan Task, output chan<- error, quit chan bool) {
 	defer wg.Done()
 
 	for {
@@ -24,11 +24,6 @@ func worker(wg *sync.WaitGroup, input <-chan Task, output chan<- error, quit cha
 			if !ok {
 				return
 			}
-			// если в канале уже полна коробочка - можно не выполнять
-			if len(output) == maxErrorsCount {
-				return
-			}
-
 			if res := task(); res != nil {
 				output <- res
 			}
@@ -54,10 +49,10 @@ func Run(tasks []Task, workersCount, maxErrorsCount int) error {
 	// сначала подготавливаем пул рабочих
 	for i := 0; i < workersCount; i++ {
 		wg.Add(1)
-		go worker(wg, inputCh, outputCh, quit, maxErrorsCount)
+		go worker(wg, inputCh, outputCh, quit)
 	}
 
-	// скармливаем задачи
+	// скармливаем задачи, проще на берегу не запускать чем потом чтото проверять
 	maxErrorReached := false
 	for i := range tasks {
 		if len(outputCh) >= maxErrorsCount && !maxErrorReached {
