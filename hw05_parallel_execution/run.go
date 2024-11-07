@@ -69,7 +69,7 @@ func Run(tasks []Task, workersCount, maxErrorsCount int) error {
 
 	wg.Wait()
 
-	fmt.Println(len(outputCh))
+	// fmt.Println(len(outputCh))
 	if maxErrorReached {
 		return ErrErrorsLimitExceeded
 	}
