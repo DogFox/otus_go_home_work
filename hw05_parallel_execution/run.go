@@ -2,11 +2,7 @@ package main
 
 import (
 	"errors"
-	"fmt"
-	"math/rand"
 	"sync"
-	"sync/atomic"
-	"time"
 )
 
 var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
@@ -75,25 +71,4 @@ func Run(tasks []Task, workersCount, maxErrorsCount int) error {
 	}
 
 	return nil
-}
-
-func main() {
-	tasksCount := 50
-	tasks := make([]Task, 0, tasksCount)
-
-	var runTasksCount int32
-
-	for i := 0; i < tasksCount; i++ {
-		err := fmt.Errorf("error from task %d", i)
-		tasks = append(tasks, func() error {
-			time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
-			atomic.AddInt32(&runTasksCount, 1)
-			return err
-		})
-	}
-
-	workersCount := 10
-	maxErrorsCount := 23
-	Run(tasks, workersCount, maxErrorsCount)
-
 }
