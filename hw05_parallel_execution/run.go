@@ -13,18 +13,24 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type Task func() error
 
-func worker(wg *sync.WaitGroup, input <-chan Task, output chan<- error, quit chan bool) {
+func worker(wg *sync.WaitGroup, input <-chan Task, output chan<- error, quit chan bool, maxErrorsCount int) {
 	defer wg.Done()
 
-	select {
-	case <-quit:
-		close(output)
-		return
-	default:
-		for task := range input {
+	for {
+		select {
+		case <-quit:
+			return
+		case task, ok := <-input:
+			if !ok {
+				return
+			}
+			// если в канале уже полна коробочка - можно не выполнять
+			if len(output) == maxErrorsCount {
+				return
+			}
+
 			if res := task(); res != nil {
 				output <- res
-				fmt.Println(len(output))
 			}
 		}
 	}
@@ -34,33 +40,47 @@ func worker(wg *sync.WaitGroup, input <-chan Task, output chan<- error, quit cha
 func Run(tasks []Task, workersCount, maxErrorsCount int) error {
 	/// канал с тасками
 	inputCh := make(chan Task, len(tasks))
+	defer close(inputCh)
 	// канал для сбора результатов
-	outputCh := make(chan error, maxErrorsCount)
-	quit := make(chan bool)
+	outputCh := make(chan error, len(tasks))
+	defer close(outputCh)
+	// канал сигнал
+	quit := make(chan bool, workersCount)
+	defer close(quit)
+
 	// вейтгруп для ожидания рутинок
 	wg := &sync.WaitGroup{}
-	// m := &sync.Mutex{}
 
+	// сначала подготавливаем пул рабочих
+	for i := 0; i < workersCount; i++ {
+		wg.Add(1)
+		go worker(wg, inputCh, outputCh, quit, maxErrorsCount)
+	}
+
+	// скармливаем задачи
 	for i := range tasks {
 		inputCh <- tasks[i]
 	}
-	close(inputCh)
 
-	for i := 0; i < workersCount; i++ {
-		wg.Add(1)
-		go worker(wg, inputCh, outputCh, quit)
-	}
-
-	output := 0
-	for _ = range outputCh {
-		output++
-		if output >= maxErrorsCount {
-			quit <- true
+	maxErrorReached := false
+	for {
+		if len(outputCh) >= maxErrorsCount && !maxErrorReached {
+			maxErrorReached = true
+			break
 		}
 	}
-	fmt.Println(output)
+
+	// хочется чтобы сигнальный канал был как флаг
+	for i := 0; i < workersCount; i++ {
+		quit <- true
+	}
 
 	wg.Wait()
+
+	fmt.Println(len(outputCh))
+	if maxErrorReached {
+		return ErrErrorsLimitExceeded
+	}
 
 	return nil
 }
@@ -80,8 +100,8 @@ func main() {
 		})
 	}
 
-	workersCount := 10
-	maxErrorsCount := 23
+	workersCount := 2
+	maxErrorsCount := 30
 	Run(tasks, workersCount, maxErrorsCount)
 
 }
