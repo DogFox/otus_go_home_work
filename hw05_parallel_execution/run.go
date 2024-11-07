@@ -18,16 +18,14 @@ func Run(tasks []Task, workersCount, maxErrorsCount int) error {
 	/// канал с тасками
 	inputCh := make(chan Task)
 	// канал для сбора результатов
-	outputCh := make(chan error)
-
+	outputCh := make(chan error, maxErrorsCount)
+	quit := make(chan bool)
 	// вейтгруп для ожидания рутинок
 	wg := &sync.WaitGroup{}
-
-	//слайс результатов
-	output := make([]error, 0, len(tasks))
-
-	///
+	// m := &sync.Mutex{}
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		defer close(inputCh)
 
 		for i := range tasks {
@@ -40,27 +38,38 @@ func Run(tasks []Task, workersCount, maxErrorsCount int) error {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				for task := range inputCh {
-					res := task()
-					if (res) != nil {
-						outputCh <- task()
+				select {
+				case <-quit:
+					return
+				default:
+					for task := range inputCh {
+						if res := task(); res != nil {
+							outputCh <- res
+							fmt.Println(len(outputCh))
+						}
 					}
 				}
 			}()
-
 		}
 		wg.Wait()
 		close(outputCh)
 	}()
 
 	// собираем результаты
-	for res := range outputCh {
-		output = append(output, res)
-	}
+	//слайс результатов
+	// output := make([]error, 0, len(tasks))
+	// for res := range outputCh {
+	// 	output = append(output, res)
+	// 	// if len(output) >= maxErrorsCount {
+	// 	// 	quit <- true
+	// 	// }
+	// }
 
-	fmt.Println(output)
+	// fmt.Println(output)
 
 	// Place your code here.
+	wg.Wait()
+
 	return nil
 }
 
