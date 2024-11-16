@@ -1,4 +1,4 @@
-package main
+package hw05parallelexecution
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
 
 type Task func() error
 
-func worker(wg *sync.WaitGroup, input <-chan Task, output chan<- error, quit chan bool) {
+func worker(wg *sync.WaitGroup, input <-chan Task, output chan<- error, quit <-chan struct{}) {
 	defer wg.Done()
 
 	for {
@@ -36,8 +36,12 @@ func Run(tasks []Task, workersCount, maxErrorsCount int) error {
 	outputCh := make(chan error, len(tasks))
 	defer close(outputCh)
 	// канал сигнал
-	quit := make(chan bool, workersCount)
-	defer close(quit)
+	quit := make(chan struct{})
+	//обработаем maxErrorsCount <= 0
+	skipErrors := false
+	if maxErrorsCount <= 0 {
+		skipErrors = true
+	}
 
 	// вейтгруп для ожидания рутинок
 	wg := &sync.WaitGroup{}
@@ -51,21 +55,16 @@ func Run(tasks []Task, workersCount, maxErrorsCount int) error {
 	// скармливаем задачи, проще на берегу не запускать чем потом чтото проверять
 	maxErrorReached := false
 	for i := range tasks {
-		if len(outputCh) >= maxErrorsCount && !maxErrorReached {
+		if !skipErrors && len(outputCh) >= maxErrorsCount && !maxErrorReached {
 			maxErrorReached = true
 			break
 		}
 		inputCh <- tasks[i]
 	}
 
-	// хочется чтобы сигнальный канал был как флаг
-	for i := 0; i < workersCount; i++ {
-		quit <- true
-	}
-
+	close(quit)
 	wg.Wait()
 
-	// fmt.Println(len(outputCh))
 	if maxErrorReached {
 		return ErrErrorsLimitExceeded
 	}
