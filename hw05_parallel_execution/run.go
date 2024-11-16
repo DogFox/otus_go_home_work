@@ -37,7 +37,7 @@ func Run(tasks []Task, workersCount, maxErrorsCount int) error {
 	defer close(outputCh)
 	// канал сигнал
 	quit := make(chan struct{})
-	//обработаем maxErrorsCount <= 0
+	// обработаем maxErrorsCount <= 0
 	skipErrors := false
 	if maxErrorsCount <= 0 {
 		skipErrors = true

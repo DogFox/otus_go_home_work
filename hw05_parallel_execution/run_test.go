@@ -91,6 +91,5 @@ func TestRun(t *testing.T) {
 		require.Eventually(t, func() bool {
 			return int64(elapsedTime) <= int64(sumTime/2)
 		}, time.Second, time.Millisecond, "tasks were run sequentially?")
-
 	})
 }
