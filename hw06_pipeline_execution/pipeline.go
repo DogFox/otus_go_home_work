@@ -33,6 +33,9 @@ func worker(stageResultCh In, done In) Bi {
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	// перебираем стейджи
 	for _, stage := range stages {
+		if done != nil {
+			return done
+		}
 		// отдаем входной канал с данными и переопределяем его же после выполнения стейджа
 		// на следующей итерации в нем лежит результат выполнения предыдущей итерации
 		in = worker(stage(in), done)
