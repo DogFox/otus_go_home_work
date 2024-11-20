@@ -1,4 +1,4 @@
-package hw06_pipeline_execution
+package hw06pipelineexecution
 
 type (
 	In  = <-chan interface{}
