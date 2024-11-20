@@ -15,41 +15,60 @@ type (
 
 type Stage func(in In) (out Out)
 
-func worker(in In, done In, stages ...Stage) Out {
-	out := make(Bi)
-	defer close(out)
-	for {
-		for _, stage := range stages {
+// воркер получает первое значение и далее прогоняет все стейджы, вычитывая и записывая обратно в канал
+func worker(value interface{}, done In, stages ...Stage) Out {
+	//небуферезированнный блокирует сразу, так как нет читателя, поэтому тут буфер 1
+	workerCh := make(Bi, 1)
+	workerCh <- value
+	defer close(workerCh)
 
+	for _, stage := range stages {
+		for {
 			select {
+			case value, ok := <-stage(workerCh):
+				if !ok {
+					return workerCh
+				}
+				workerCh <- value
+				break
 			case <-done:
-				return out
-			case out <- stage(in):
+				return workerCh
 			}
 		}
+		// select {
+		// case <-done:
+		// 	return workerCh
+		// case res := <-stage(workerCh):
+		// 	fmt.Println(res)
+		// 	workerCh <- res
+		// }
 	}
+
+	return workerCh
 }
 
 func ExecutePipeline(in In, done In, stages ...Stage) Out {
 	wg := &sync.WaitGroup{}
 	multiplexedStream := make(chan interface{})
-	multiplex := func(c <-chan interface{}) {
-		defer wg.Done()
-		for i := range c {
-			select {
-			case <-done:
-				return
-			case multiplexedStream <- i:
-			}
-		}
-	}
+	// multiplex := func(c <-chan interface{}) {
+	// 	defer wg.Done()
+	// 	for i := range c {
+	// 		select {
+	// 		case <-done:
+	// 			return
+	// 		case multiplexedStream <- i:
+	// 		}
+	// 	}
+	// }
 
 	for value := range in {
-		workerIn := make(Bi)
-		workerIn <- value
-
 		wg.Add(1)
-		go multiplex(worker(workerIn, done, stages...))
+		// go multiplex(worker(value, done, stages...))
+		pipeline := worker(value, done, stages...)
+
+		for s := range pipeline {
+			fmt.Println(s.(string))
+		}
 	}
 
 	go func() {
@@ -83,7 +102,8 @@ func main() {
 	}
 
 	in := make(Bi)
-	data := []int{1, 2, 3, 4, 5}
+	// data := []int{1, 2, 3, 4, 5}
+	data := []int{1}
 
 	go func() {
 		for _, v := range data {
