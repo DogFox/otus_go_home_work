@@ -1,4 +1,4 @@
-package main
+package hw06_pipeline_execution
 
 import (
 	"strconv"
