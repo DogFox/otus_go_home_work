@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 )
 
 var (
@@ -18,5 +19,9 @@ func init() {
 
 func main() {
 	flag.Parse()
-	// Place your code here.
+
+	err := Copy("./testdata/input.txt", "./out.txt", 0, 0)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
