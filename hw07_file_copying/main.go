@@ -20,7 +20,7 @@ func init() {
 func main() {
 	flag.Parse()
 
-	err := Copy("./testdata/input.txt", "./out.txt", 0, 0)
+	err := Copy("./testdata/input.txt", "./out.txt", 3000, 3200)
 	if err != nil {
 		fmt.Println(err)
 	}

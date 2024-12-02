@@ -26,8 +26,15 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	data := make([]byte, 64)
 
 	for {
-		n, err := file.Read(data)
+		n, err := file.ReadAt(data, offset)
+		offset += int64(n)
+		if offset > limit {
+			last := offset - limit
+			fileOut.Write(data[:last])
+			break
+		}
 		if err == io.EOF {
+			fileOut.Write(data[:n])
 			break
 		}
 
