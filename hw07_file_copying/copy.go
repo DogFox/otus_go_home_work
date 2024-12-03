@@ -23,7 +23,6 @@ type copyInfo struct {
 }
 
 func copyWorker(info copyInfo, file *os.File, fileOut *os.File) error {
-
 	if info.fileSize < int64(info.offset) {
 		return errors.New("offset bigger than file")
 	}
@@ -40,7 +39,6 @@ func copyWorker(info copyInfo, file *os.File, fileOut *os.File) error {
 				fileOut.Write(data[:limit])
 				fmt.Println("copied all 100%")
 				break
-
 			}
 		}
 		if err == io.EOF {
@@ -54,7 +52,6 @@ func copyWorker(info copyInfo, file *os.File, fileOut *os.File) error {
 		counts := int(info.fileSize) / info.bufferSize
 		fmt.Println("copied [", strings.Repeat("#", count), strings.Repeat("-", counts-count), "]", count*100/(counts+1), "%")
 		fileOut.Write(data[:n])
-
 	}
 	return nil
 }
