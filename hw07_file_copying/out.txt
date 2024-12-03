@@ -1,4 +1,0 @@
-inal sessions for the change to take effect.
-
-Windows
-The Go project provides two installation options for Windows users (besides installing from source): a zip archive that requires you to set some environment variables and an MSI installer tha

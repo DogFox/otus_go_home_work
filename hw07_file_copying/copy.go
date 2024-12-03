@@ -33,12 +33,15 @@ func copyWorker(info copyInfo, file *os.File, fileOut *os.File) error {
 	for {
 		n, err := file.ReadAt(data, offset)
 		offset += int64(n)
-		if offset > limit && limit != 0 {
-			last := offset - limit
-			fileOut.Write(data[:last])
-			fmt.Println("copied all 100%")
+		if limit > 0 {
+			if limit > int64(n) {
+				limit -= int64(n)
+			} else {
+				fileOut.Write(data[:limit])
+				fmt.Println("copied all 100%")
+				break
 
-			break
+			}
 		}
 		if err == io.EOF {
 			fileOut.Write(data[:n])
@@ -48,14 +51,10 @@ func copyWorker(info copyInfo, file *os.File, fileOut *os.File) error {
 		}
 
 		count++
-
 		counts := int(info.fileSize) / info.bufferSize
-		// fmt.Print("\x1b[40m")
-		// fmt.Print("\x1b[2J")
-		// fmt.Print("\x1b[?25l")
-		// fmt.Println("copied ", count*100/(counts+1), "%")
 		fmt.Println("copied [", strings.Repeat("#", count), strings.Repeat("-", counts-count), "]", count*100/(counts+1), "%")
 		fileOut.Write(data[:n])
+
 	}
 	return nil
 }
