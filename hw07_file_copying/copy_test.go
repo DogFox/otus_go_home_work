@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"testing"
 
-	"github.com/stretchr/testify/require" // nolint: depguard
+	"github.com/stretchr/testify/require" //nolint: depguard
 )
 
 func TestCopy(t *testing.T) {
