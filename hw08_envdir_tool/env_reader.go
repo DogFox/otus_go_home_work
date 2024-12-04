@@ -42,6 +42,9 @@ func ReadDir(dir string) (Environment, error) {
 
 	envs := make(map[string]EnvValue)
 	for _, fileName := range files {
+		if strings.Contains(fileName.Name(), "=") { //скипнули файлы с =
+			continue
+		}
 
 		file, err := os.Open(dir + "/" + fileName.Name())
 		if err != nil {
@@ -53,9 +56,19 @@ func ReadDir(dir string) (Environment, error) {
 			fmt.Println(err)
 			return nil, err
 		}
-		// fmt.Println(fileName, strings.Trim(value, "\n\r"))
-		envs[file.Name()] = EnvValue{Value: strings.TrimRight(value, "\n\r"), NeedRemove: false}
+		needToRemove := false // будем удалять переменные с пустым значением
+		if len(value) == 0 {
+			needToRemove = true
+		}
+		str := prepareString(value)
+		envs[file.Name()] = EnvValue{Value: str, NeedRemove: needToRemove}
 	}
 
 	return envs, nil
+}
+
+func prepareString(str string) string {
+	strTrimmed := strings.TrimRight(str, " \t\r\n")
+	finishStr := strings.ReplaceAll(strTrimmed, "\x00", "\n")
+	return finishStr
 }
