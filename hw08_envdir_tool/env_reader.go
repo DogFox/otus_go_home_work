@@ -61,7 +61,7 @@ func ReadDir(dir string) (Environment, error) {
 			needToRemove = true
 		}
 		str := prepareString(value)
-		envs[file.Name()] = EnvValue{Value: str, NeedRemove: needToRemove}
+		envs[fileName.Name()] = EnvValue{Value: str, NeedRemove: needToRemove}
 	}
 
 	return envs, nil

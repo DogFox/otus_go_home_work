@@ -8,7 +8,7 @@ import (
 
 // RunCmd runs a command + arguments (cmd) with environment variables from env.
 func RunCmd(cmdList []string, env Environment) (returnCode int) {
-	fmt.Println(env)
+	// fmt.Println(env)
 
 	for key, value := range env {
 		if value.NeedRemove {
@@ -20,8 +20,14 @@ func RunCmd(cmdList []string, env Environment) (returnCode int) {
 		if err := os.Setenv(key, value.Value); err != nil {
 			return 1
 		}
-
 	}
+
+	varName := "FOO"
+	varValue := os.Getenv(varName)
+	fmt.Printf("%s=%s\n", varName, varValue)
+	varName = "BAR"
+	varValue = os.Getenv(varName)
+	fmt.Printf("%s=%s\n", varName, varValue)
 
 	cmd := exec.Command(cmdList[0], cmdList[1:]...)
 	cmd.Env = []string{} // не передаем какие либо енвы os.Ennviron
