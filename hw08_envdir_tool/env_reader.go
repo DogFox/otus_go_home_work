@@ -33,7 +33,6 @@ func ReadLine(r io.Reader, lineNum int) (line string, err error) {
 // ReadDir reads a specified directory and returns map of env variables.
 // Variables represented as files where filename is name of variable, file first line is a value.
 func ReadDir(dir string) (Environment, error) {
-
 	files, err := os.ReadDir(dir)
 	if err != nil {
 		fmt.Println(err)
@@ -42,7 +41,7 @@ func ReadDir(dir string) (Environment, error) {
 
 	envs := make(map[string]EnvValue)
 	for _, fileName := range files {
-		if strings.Contains(fileName.Name(), "=") { //скипнули файлы с =
+		if strings.Contains(fileName.Name(), "=") { // скипнули файлы с =
 			continue
 		}
 
