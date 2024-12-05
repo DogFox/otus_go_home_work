@@ -8,6 +8,8 @@ import (
 // RunCmd runs a command + arguments (cmd) with environment variables from env.
 func RunCmd(cmdList []string, env Environment) (returnCode int) {
 	envForCmd := make([]string, 0)
+	// fmt.Println("env ", env)
+
 	for key, value := range env {
 		if value.NeedRemove {
 			if err := os.Unsetenv(key); err != nil {
@@ -16,6 +18,7 @@ func RunCmd(cmdList []string, env Environment) (returnCode int) {
 			continue
 		}
 		envForCmd = append(envForCmd, key+"="+value.Value)
+		// fmt.Println("set ", key, value.Value)
 		if err := os.Setenv(key, value.Value); err != nil {
 			return -1
 		}

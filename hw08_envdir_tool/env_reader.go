@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 )
@@ -13,6 +14,11 @@ type Environment map[string]EnvValue
 type EnvValue struct {
 	Value      string
 	NeedRemove bool
+}
+
+func ReadLine(r io.Reader) (line string) {
+	text, _ := bufio.NewReader(r).ReadString('\n')
+	return text
 }
 
 // ReadDir reads a specified directory and returns map of env variables.
@@ -35,11 +41,7 @@ func ReadDir(dir string) (Environment, error) {
 			fmt.Println(err)
 			return nil, err
 		}
-		value, err := bufio.NewReader(file).ReadString('\n')
-		if err != nil {
-			fmt.Println(err)
-			return nil, err
-		}
+		value := ReadLine(file)
 		needToRemove := false // будем удалять переменные с пустым значением
 		if len(value) == 0 {
 			needToRemove = true
