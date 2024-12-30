@@ -1,4 +1,4 @@
-package main
+package hw09structvalidator
 
 import (
 	"fmt"
@@ -20,11 +20,6 @@ var (
 type ValidationError struct {
 	Field string
 	Err   error
-}
-
-type Response2 struct {
-	Code int    `validate:"in:200,404,500"`
-	Body string `json:"omitempty"`
 }
 
 type ValidationErrors []ValidationError
@@ -61,7 +56,7 @@ func Validate(v interface{}) error {
 			continue
 		}
 
-		//валидируем, набираем слайс ошибок
+		// валидируем, набираем слайс ошибок
 		switch fieldType.Type.String() {
 		case "string":
 			errors, err = validateString(fieldType.Name, fieldValue.String(), tagValue, errors)
@@ -99,12 +94,16 @@ func Validate(v interface{}) error {
 	return errors
 }
 
-func validateString(fieldName string, fieldValue string, rulesStr string, errors ValidationErrors) (ValidationErrors, error) {
+func validateString(
+	fieldName string,
+	fieldValue string,
+	rulesStr string,
+	errors ValidationErrors,
+) (ValidationErrors, error) {
 	rules := strings.Split(rulesStr, "|")
 
 	for _, value := range rules {
 		rulesSlice := strings.Split(value, ":")
-		// fmt.Println("rulesSlice", value)
 
 		switch rulesSlice[0] {
 		case "len":
@@ -146,7 +145,6 @@ func validateString(fieldName string, fieldValue string, rulesStr string, errors
 	}
 
 	return errors, nil
-
 }
 
 func validateInt(fieldName string, fieldValue int, rulesStr string, errors ValidationErrors) (ValidationErrors, error) {
@@ -198,11 +196,4 @@ func validateInt(fieldName string, fieldValue int, rulesStr string, errors Valid
 	}
 
 	return errors, nil
-}
-
-func main() {
-	Validate(Response2{
-		Body: "anytext",
-		Code: 503,
-	})
 }

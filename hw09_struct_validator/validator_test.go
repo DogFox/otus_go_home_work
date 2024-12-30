@@ -1,11 +1,11 @@
-package main
+package hw09structvalidator
 
 import (
 	"encoding/json"
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require" //nolint:depguard
 )
 
 type UserRole string
@@ -74,7 +74,7 @@ func TestValidate(t *testing.T) {
 				Version: "12323232323",
 			},
 			expectedErr: fmt.Errorf(
-				"field: Version | err: doesnt fit length\n",
+				"field: Version | err: doesnt fit length\n", //nolint:revive
 			),
 		},
 		{
@@ -82,7 +82,7 @@ func TestValidate(t *testing.T) {
 				Version: "dasda",
 			},
 			expectedErr: fmt.Errorf(
-				"field: Version | err: doesnt fit regexp\n",
+				"field: Version | err: doesnt fit regexp\n", //nolint:revive
 			),
 		},
 		{
@@ -90,7 +90,7 @@ func TestValidate(t *testing.T) {
 				Version: "123123dasda",
 			},
 			expectedErr: fmt.Errorf(
-				"field: Version | err: doesnt fit length\n",
+				"field: Version | err: doesnt fit length\n", //nolint:revive
 			),
 		},
 		{
