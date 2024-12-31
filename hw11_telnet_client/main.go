@@ -1,6 +1,15 @@
 package main
 
+import (
+	"bytes"
+	"io"
+	"os"
+)
+
 func main() {
-	// Place your code here,
-	// P.S. Do not rush to throw context down, think think if it is useful with blocking operation?
+
+	in := &bytes.Buffer{}
+
+	client := NewTelnetClient("192.168.1.1", 10, io.NopCloser(in), os.Stdout)
+	client.Connect()
 }
