@@ -1,11 +1,12 @@
 package hw10programoptimization
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"regexp"
 	"strings"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 type User struct {
@@ -35,6 +36,7 @@ func getUsers(r io.Reader) (result users, err error) {
 	if err != nil {
 		return
 	}
+	json := jsoniter.ConfigCompatibleWithStandardLibrary
 
 	lines := strings.Split(string(content), "\n")
 	for i, line := range lines {
@@ -49,13 +51,14 @@ func getUsers(r io.Reader) (result users, err error) {
 
 func countDomains(u users, domain string) (DomainStat, error) {
 	result := make(DomainStat)
+	regex, err := regexp.Compile("\\." + domain)
+	if err != nil {
+		fmt.Println("Ошибка компиляции регулярного выражения:", err)
+		return nil, err
+	}
 
 	for _, user := range u {
-		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
-		if err != nil {
-			return nil, err
-		}
-
+		matched := regex.MatchString(user.Email)
 		if matched {
 			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
 			num++
