@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"net"
 	"time"
@@ -33,25 +32,25 @@ func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, ou
 }
 
 func (client *Client) Connect() error {
-	fmt.Println("start connection")
+	// fmt.Println("start connection")
 	conn, err := net.DialTimeout("tcp", client.Address, client.Timeout)
 	if err != nil {
 		return err
 	}
 
 	client.Conn = conn
-	fmt.Println("connected")
+	// fmt.Println("connected")
 	return nil
 }
 
 func (client *Client) Close() error {
 	if client.Conn != nil {
-		fmt.Println("closing connection")
+		// fmt.Println("closing connection")
 		err := client.Conn.Close()
 		if err != nil {
 			return err
 		}
-		fmt.Println("connection closed")
+		// fmt.Println("connection closed")
 	}
 	return nil
 }

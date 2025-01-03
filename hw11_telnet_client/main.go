@@ -47,23 +47,27 @@ func main() {
 	defer stop()
 
 	wg := &sync.WaitGroup{}
-	wg.Add(2)
 
-	go sendWorker(wg, client, in)
-	go receiveWorker(wg, client)
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				fmt.Println("Получен сигнал, завершаем горутину.")
+				return
+			default:
+				wg.Add(2)
 
-	wg.Wait()
+				go sendWorker(wg, client, in)
+				go receiveWorker(wg, client)
 
-	for {
-		select {
-		case <-ctx.Done():
-			stop()
-			fmt.Println("signal received")
-			return
-		default:
-			fmt.Println("signal not received")
+				wg.Wait()
+			}
 		}
-	}
+	}()
+
+	<-ctx.Done()
+	fmt.Println("Контекст завершён. Программа завершает работу.")
+
 }
 
 func sendWorker(wg *sync.WaitGroup, client TelnetClient, in *bytes.Buffer) {
@@ -71,7 +75,6 @@ func sendWorker(wg *sync.WaitGroup, client TelnetClient, in *bytes.Buffer) {
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		inputStr, err := reader.ReadString('\n')
-		// fmt.Println(inputStr, err)
 		if err != nil {
 			return
 		}
@@ -90,7 +93,7 @@ func receiveWorker(wg *sync.WaitGroup, client TelnetClient) {
 	for {
 		err := client.Receive()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("receive err: ", err)
 			return
 		}
 	}
