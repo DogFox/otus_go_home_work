@@ -27,6 +27,7 @@ func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, ou
 		Timeout: timeout,
 		In:      in,
 		Out:     out,
+		Conn:    nil,
 	}
 }
 
