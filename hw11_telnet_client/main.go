@@ -51,7 +51,7 @@ func main() {
 		for {
 			select {
 			case <-ctx.Done():
-				fmt.Println("Получен сигнал, завершаем горутину.")
+				// fmt.Println("Получен сигнал, завершаем горутину.")
 				return
 			default:
 				wg.Add(2)
@@ -65,7 +65,7 @@ func main() {
 	}()
 
 	<-ctx.Done()
-	fmt.Println("Контекст завершён. Программа завершает работу.")
+	// fmt.Println("Контекст завершён. Программа завершает работу.")
 }
 
 func sendWorker(wg *sync.WaitGroup, client TelnetClient, in *bytes.Buffer) {
