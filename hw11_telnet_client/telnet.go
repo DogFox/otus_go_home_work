@@ -61,7 +61,6 @@ func (client *Client) Send() error {
 		return err
 	}
 	return nil
-
 }
 
 func (client *Client) Receive() error {

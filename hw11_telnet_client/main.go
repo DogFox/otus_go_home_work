@@ -18,9 +18,8 @@ import (
 // go run . go-telnet --timeout=5s host port
 // go run . --timeout=5s host port
 // go run . --timeout=5s localhost 4242 >./telnet.out
-// ncat -l localhost 4242 >./nc.out
+// ncat -l localhost 4242 >./nc.out.
 func main() {
-
 	timeout := flag.Duration("timeout", 10*time.Second, "Timeout connection in seconds")
 	flag.Parse()
 	if flag.NArg() != 2 {
@@ -67,7 +66,6 @@ func main() {
 
 	<-ctx.Done()
 	fmt.Println("Контекст завершён. Программа завершает работу.")
-
 }
 
 func sendWorker(wg *sync.WaitGroup, client TelnetClient, in *bytes.Buffer) {
