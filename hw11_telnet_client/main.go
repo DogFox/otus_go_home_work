@@ -32,7 +32,7 @@ func main() {
 	host := flag.Arg(0)
 	connStr := net.JoinHostPort(host, port)
 
-	fmt.Println(connStr, timeout)
+	// fmt.Println(connStr, timeout)
 
 	client := NewTelnetClient(connStr, *timeout, io.NopCloser(in), os.Stdout)
 	defer client.Close()
