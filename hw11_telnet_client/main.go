@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"flag"
@@ -9,6 +10,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 )
@@ -41,43 +43,55 @@ func main() {
 		return
 	}
 
-	_, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT)
 	defer stop()
 
-	//отправка
-	// reader := bufio.NewReader(os.Stdin)
-	// for {
-	// 	inputStr, err := reader.ReadString('\n')
-	// 	// fmt.Println(inputStr, err)
-	// 	if err != nil {
-	// 		stop()
-	// 		return
-	// 	}
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
 
-	// 	in.WriteString(inputStr)
-	// 	err = client.Send()
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 		stop()
-	// 		return
-	// 	}
-	// }
+	go sendWorker(wg, client, in)
+	go receiveWorker(wg, client)
+
+	wg.Wait()
 
 	for {
-		err = client.Receive()
+		select {
+		case <-ctx.Done():
+			stop()
+			fmt.Println("signal received")
+			return
+		default:
+			fmt.Println("signal not received")
+		}
+	}
+}
+
+func sendWorker(wg *sync.WaitGroup, client TelnetClient, in *bytes.Buffer) {
+	defer wg.Done()
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		inputStr, err := reader.ReadString('\n')
+		// fmt.Println(inputStr, err)
+		if err != nil {
+			return
+		}
+
+		in.WriteString(inputStr)
+		err = client.Send()
 		if err != nil {
 			fmt.Println(err)
-			stop()
 			return
 		}
 	}
+}
 
-	// select {
-	// case <-time.After(10 * time.Second):
-	// 	fmt.Println("missed signal")
-	// case <-ctx.Done():
-	// 	stop()
-	// 	fmt.Println("signal received")
-	// }
-
+func receiveWorker(wg *sync.WaitGroup, client TelnetClient) {
+	defer wg.Done()
+	for {
+		err := client.Receive()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
 }
