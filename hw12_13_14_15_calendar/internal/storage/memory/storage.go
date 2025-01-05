@@ -2,7 +2,10 @@ package memorystorage
 
 import (
 	"context"
+	"fmt"
 	"sync"
+
+	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/storage"
 )
 
 type Storage struct {
@@ -22,15 +25,16 @@ func (s *Storage) Close(ctx context.Context) error {
 	return nil
 }
 
-func (s *Storage) CreateEvent() {
-
+func (s *Storage) CreateEvent(event storage.Event) error {
+	fmt.Println("event ", event)
+	return nil
 }
-func (s *Storage) UpdateEvent() {
-
+func (s *Storage) UpdateEvent() error {
+	return nil
 }
-func (s *Storage) DeleteEvent() {
-
+func (s *Storage) DeleteEvent() error {
+	return nil
 }
-func (s *Storage) EventList() {
-
+func (s *Storage) EventList() []*storage.Event {
+	return make([]*storage.Event, 0)
 }
