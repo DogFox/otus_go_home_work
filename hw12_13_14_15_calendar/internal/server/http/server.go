@@ -2,6 +2,7 @@ package internalhttp
 
 import (
 	"context"
+	"fmt"
 )
 
 type Server struct { // TODO
@@ -18,7 +19,9 @@ func NewServer(logger Logger, app Application) *Server {
 }
 
 func (s *Server) Start(ctx context.Context) error {
+	fmt.Println("start server")
 	// TODO
+
 	<-ctx.Done()
 	return nil
 }

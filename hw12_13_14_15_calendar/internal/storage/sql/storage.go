@@ -18,3 +18,16 @@ func (s *Storage) Close(ctx context.Context) error {
 	// TODO
 	return nil
 }
+
+func (s *Storage) CreateEvent() {
+
+}
+func (s *Storage) UpdateEvent() {
+
+}
+func (s *Storage) DeleteEvent() {
+
+}
+func (s *Storage) EventList() {
+
+}
