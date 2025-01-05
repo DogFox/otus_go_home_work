@@ -14,7 +14,7 @@ func (l Logger) Info(msg string) {
 }
 
 func (l Logger) Error(msg string) {
-	// TODO
+	fmt.Println("error: ", msg)
 }
 
 // TODO
