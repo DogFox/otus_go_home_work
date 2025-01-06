@@ -29,10 +29,13 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
+	config, err := NewConfig()
+	if err != nil {
+		fmt.Println(err)
+	}
 	logg := logger.New(config.Logger.Level)
 
-	fmt.Println(config.Logger)
+	fmt.Println(config.Logger.Level)
 
 	storage := memorystorage.New()
 	calendar := app.New(logg, storage)
