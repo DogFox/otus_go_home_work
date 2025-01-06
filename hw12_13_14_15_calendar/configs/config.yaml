@@ -1,0 +1,14 @@
+server:
+  host: "localhost"
+  port: 8080
+
+database:
+  user: "postgres"
+  password: "postgres"
+  name: "postgres"
+  host: "localhost"
+  port: 5432
+
+logger:
+  level: "info"
+  file: "app.log"
