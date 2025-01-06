@@ -10,7 +10,6 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 	"time"
 )
@@ -45,54 +44,42 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINT)
 	defer stop()
 
-	wg := &sync.WaitGroup{}
+	go func() {
+		reader := bufio.NewReader(os.Stdin)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				inputStr, err := reader.ReadString('\n')
+				if err != nil {
+					return
+				}
+				in.WriteString(inputStr)
+				err = client.Send()
+				if err != nil {
+					fmt.Println("send error:", err)
+					return
+				}
+			}
+		}
+	}()
 
 	go func() {
 		for {
 			select {
 			case <-ctx.Done():
-				// fmt.Println("Получен сигнал, завершаем горутину.")
 				return
 			default:
-				wg.Add(2)
-
-				go sendWorker(wg, client, in)
-				go receiveWorker(wg, client)
-
-				wg.Wait()
+				err := client.Receive()
+				if err != nil {
+					fmt.Println("receive error:", err)
+					return
+				}
 			}
 		}
 	}()
 
 	<-ctx.Done()
 	// fmt.Println("Контекст завершён. Программа завершает работу.")
-}
-
-func sendWorker(wg *sync.WaitGroup, client TelnetClient, in *bytes.Buffer) {
-	defer wg.Done()
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		inputStr, err := reader.ReadString('\n')
-		if err != nil {
-			return
-		}
-
-		in.WriteString(inputStr)
-		err = client.Send()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	}
-}
-
-func receiveWorker(wg *sync.WaitGroup, client TelnetClient) {
-	defer wg.Done()
-	for {
-		err := client.Receive()
-		if err != nil {
-			fmt.Println("receive err: ", err)
-			return
-		}
-	}
 }
