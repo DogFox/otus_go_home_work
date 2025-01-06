@@ -2,18 +2,21 @@ package memorystorage
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
-	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/storage"
+	domain "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/model"
 )
 
 type Storage struct {
-	mu sync.RWMutex //nolint:unused
+	events map[string]domain.Event
+	mu     sync.RWMutex //nolint:unused
 }
 
 func New() *Storage {
-	return &Storage{}
+	return &Storage{
+		events: map[string]domain.Event{},
+		mu:     sync.RWMutex{},
+	}
 }
 func (s *Storage) Connect(ctx context.Context) error {
 	// TODO
@@ -25,16 +28,23 @@ func (s *Storage) Close(ctx context.Context) error {
 	return nil
 }
 
-func (s *Storage) CreateEvent(event storage.Event) error {
-	fmt.Println("event ", event)
+func (s *Storage) CreateEvent(event domain.Event) error {
+	s.events[event.ID] = event
 	return nil
 }
-func (s *Storage) UpdateEvent() error {
+func (s *Storage) UpdateEvent(event domain.Event) error {
+	s.events[event.ID] = event
 	return nil
 }
-func (s *Storage) DeleteEvent() error {
+func (s *Storage) DeleteEvent(event domain.Event) error {
+	delete(s.events, event.ID)
 	return nil
 }
-func (s *Storage) EventList() []*storage.Event {
-	return make([]*storage.Event, 0)
+func (s *Storage) EventList() []domain.Event {
+	list := make([]domain.Event, 0, len(s.events))
+	for _, v := range s.events {
+		// fmt.Println("list ", v)
+		list = append(list, v)
+	}
+	return list
 }

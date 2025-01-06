@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -39,6 +40,13 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
+
+	calendar.CreateEvent(ctx, "test", "test")
+	calendar.CreateEvent(ctx, "test2", "test2")
+	calendar.CreateEvent(ctx, "test3", "test3")
+	calendar.CreateEvent(ctx, "test4", "test4")
+
+	fmt.Println(calendar.EventList())
 
 	go func() {
 		<-ctx.Done()
