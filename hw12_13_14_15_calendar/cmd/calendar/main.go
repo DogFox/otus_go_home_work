@@ -32,6 +32,8 @@ func main() {
 	config := NewConfig()
 	logg := logger.New(config.Logger.Level)
 
+	fmt.Println(config.Logger)
+
 	storage := memorystorage.New()
 	calendar := app.New(logg, storage)
 
@@ -60,6 +62,10 @@ func main() {
 	}()
 
 	logg.Info("calendar is running...")
+	// logg.Info("Это INFO сообщение")
+	// logg.Warn("Это WARN сообщение")
+	// logg.Error("Это ERROR сообщение")
+	// logg.Fatal("Это FATAL сообщение")
 
 	if err := server.Start(ctx); err != nil {
 		logg.Error("failed to start http server: " + err.Error())
