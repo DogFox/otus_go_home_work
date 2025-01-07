@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
 	"context"
 	"flag"
 	"fmt"
@@ -26,14 +24,11 @@ func main() {
 		return
 	}
 
-	in := &bytes.Buffer{}
 	port := flag.Arg(1)
 	host := flag.Arg(0)
 	connStr := net.JoinHostPort(host, port)
 
-	// fmt.Println(connStr, timeout)
-
-	client := NewTelnetClient(connStr, *timeout, io.NopCloser(in), os.Stdout)
+	client := NewTelnetClient(connStr, *timeout, io.NopCloser(os.Stdin), os.Stdout)
 	defer client.Close()
 	err := client.Connect()
 	if err != nil {
@@ -45,39 +40,20 @@ func main() {
 	defer stop()
 
 	go func() {
-		reader := bufio.NewReader(os.Stdin)
-		for {
-			if ctx.Err() != nil {
-				return
-			}
-
-			inputStr, err := reader.ReadString('\n')
-			if err != nil {
-				return
-			}
-			in.WriteString(inputStr)
-			err = client.Send()
-			if err != nil {
-				fmt.Println("send error:", err)
-				return
-			}
+		err = client.Send()
+		if err != nil {
+			fmt.Println("send error:", err)
+			return
 		}
 	}()
 
 	go func() {
-		for {
-			if ctx.Err() != nil {
-				return
-			}
-
-			err := client.Receive()
-			if err != nil {
-				fmt.Println("receive error:", err)
-				return
-			}
+		err := client.Receive()
+		if err != nil {
+			fmt.Println("receive error:", err)
+			return
 		}
 	}()
 
 	<-ctx.Done()
-	// fmt.Println("Контекст завершён. Программа завершает работу.")
 }
