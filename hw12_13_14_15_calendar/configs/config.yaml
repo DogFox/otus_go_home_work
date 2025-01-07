@@ -8,7 +8,11 @@ database:
   name: "postgres"
   host: "localhost"
   port: 5432
+  ssl: "disable"
 
 logger:
   level: "info"
   file: "app.log"
+
+storage:
+  type: "postgres"

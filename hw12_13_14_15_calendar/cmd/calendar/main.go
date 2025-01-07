@@ -13,6 +13,7 @@ import (
 	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/logger"
 	internalhttp "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlstorage "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/storage/sql"
 )
 
 var configFile string
@@ -35,16 +36,20 @@ func main() {
 	}
 	logg := logger.New(config.Logger.Level)
 
-	fmt.Println(config.Logger.Level)
-
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
-
-	server := internalhttp.NewServer(logg, calendar)
-
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
+
+	storage := memorystorage.New()
+
+	sqlstorage := sqlstorage.New()
+	err = sqlstorage.Connect(ctx, config.Database.DSN())
+	if err != nil {
+		logg.Error(err)
+	}
+
+	calendar := app.New(logg, storage)
+	server := internalhttp.NewServer(logg, calendar)
 
 	calendar.CreateEvent(ctx, "test", "test")
 	calendar.CreateEvent(ctx, "test2", "test2")
