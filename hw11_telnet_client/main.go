@@ -47,35 +47,33 @@ func main() {
 	go func() {
 		reader := bufio.NewReader(os.Stdin)
 		for {
-			select {
-			case <-ctx.Done():
+			if ctx.Err() != nil {
 				return
-			default:
-				inputStr, err := reader.ReadString('\n')
-				if err != nil {
-					return
-				}
-				in.WriteString(inputStr)
-				err = client.Send()
-				if err != nil {
-					fmt.Println("send error:", err)
-					return
-				}
+			}
+
+			inputStr, err := reader.ReadString('\n')
+			if err != nil {
+				return
+			}
+			in.WriteString(inputStr)
+			err = client.Send()
+			if err != nil {
+				fmt.Println("send error:", err)
+				return
 			}
 		}
 	}()
 
 	go func() {
 		for {
-			select {
-			case <-ctx.Done():
+			if ctx.Err() != nil {
 				return
-			default:
-				err := client.Receive()
-				if err != nil {
-					fmt.Println("receive error:", err)
-					return
-				}
+			}
+
+			err := client.Receive()
+			if err != nil {
+				fmt.Println("receive error:", err)
+				return
 			}
 		}
 	}()
