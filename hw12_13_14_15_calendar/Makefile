@@ -1,5 +1,9 @@
 BIN := "./bin/calendar"
 DOCKER_IMG="calendar:develop"
+PROJECT_DIR := $(CURDIR)
+MIGRATIONS_DIR := $(PROJECT_DIR)/migrations
+BUILDER := migrate-builder
+POSTGRES := postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
@@ -30,5 +34,13 @@ install-lint-deps:
 
 lint: install-lint-deps
 	golangci-lint run ./...
+
+create-migration:
+	docker run --rm -v ./migrations:/app/migrations $(BUILDER) create -ext sql -dir /app/migrations $(name)
+
+migrate:
+	docker run --rm -v ./migrations:/app/migrations $(BUILDER) -database $(POSTGRES) -path /app/migrations up
+
+
 
 .PHONY: build run build-img run-img version test lint
