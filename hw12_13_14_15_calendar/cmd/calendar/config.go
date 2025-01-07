@@ -26,11 +26,16 @@ type DatabaseConf struct {
 	Name     string
 	Host     string
 	Port     string
+	SSL      string
 }
 
 type ServerConf struct {
 	Host string
 	Port string
+}
+
+type StorageConf struct {
+	Type string
 }
 
 func NewConfig() (*Config, error) {
@@ -47,4 +52,9 @@ func NewConfig() (*Config, error) {
 	}
 
 	return &config, nil
+}
+
+func (d *DatabaseConf) DSN() string {
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		d.User, d.Password, d.Host, d.Port, d.Name, d.SSL)
 }
