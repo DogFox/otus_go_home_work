@@ -2,6 +2,7 @@ package sqlstorage
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	domain "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/model"
@@ -34,30 +35,41 @@ func (s *Storage) Close(ctx context.Context) error {
 	return nil
 }
 
-func (s *Storage) CreateEvent(event domain.Event) error {
+func (s *Storage) CreateEvent(ctx context.Context, event domain.Event) error {
 	sql := `INSERT INTO events (user_id, title, date, duration, timeshift, description) 
 			VALUES ($1, $2, $3, $4, $5, $6)`
+	fmt.Println(event)
+	_, err := s.conn.Exec(ctx, sql, event.User_ID, event.Title, event.Date, event.Duration, event.TimeShift, event.Description)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
+}
+func (s *Storage) UpdateEvent(ctx context.Context, event domain.Event) error {
+	sql := `UPDATE events 
+	SET user_id = $1, title = $2, date = $3, duration = $4, timeshift = $5, description = $6
+	WHERE id = $7`
 
-	_, err := s.conn.Exec(context.Background(), sql, event.User_ID, event.Title, event.Date, event.Duration, event.TimeShift, event.Description)
+	_, err := s.conn.Exec(ctx, sql, event.User_ID, event.Title, event.Date, event.Duration, event.TimeShift, event.Description, event.ID)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func (s *Storage) UpdateEvent() {
-
-}
-func (s *Storage) DeleteEvent(event domain.Event) error {
+func (s *Storage) DeleteEvent(ctx context.Context, event domain.Event) error {
 	sql := `DELETE FROM events WHERE id = $1`
 
-	_, err := s.conn.Exec(context.Background(), sql, event.ID)
+	_, err := s.conn.Exec(ctx, sql, event.ID)
 	if err != nil {
 		log.Fatal("failed to delete event:", err)
 	}
+	return nil
 }
-func (s *Storage) EventList() ([]domain.Event, error) {
+
+func (s *Storage) EventList(ctx context.Context) ([]domain.Event, error) {
 	list := make([]domain.Event, 0)
-	rows, err := s.conn.Query(context.Background(), "SELECT id, user_id, title, date, duration, timeshift, description FROM events")
+	rows, err := s.conn.Query(ctx, "SELECT id, user_id, title, date, duration, timeshift, description FROM events")
 	if err != nil {
 		return list, err
 	}
