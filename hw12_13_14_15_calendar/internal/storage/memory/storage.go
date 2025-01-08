@@ -2,6 +2,7 @@ package memorystorage
 
 import (
 	"context"
+	"strconv"
 	"sync"
 
 	domain "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/model"
@@ -28,23 +29,30 @@ func (s *Storage) Close(ctx context.Context) error {
 	return nil
 }
 
-func (s *Storage) CreateEvent(event domain.Event) error {
-	s.events[event.ID] = event
+func (s *Storage) CreateEvent(ctx context.Context, event domain.Event) error {
+	s.mu.Lock()
+	event.ID = int64(len(s.events) + 1)
+	s.events[strconv.Itoa(int(event.ID))] = event
+	s.mu.Unlock()
 	return nil
 }
-func (s *Storage) UpdateEvent(event domain.Event) error {
-	s.events[event.ID] = event
+func (s *Storage) UpdateEvent(ctx context.Context, event domain.Event) error {
+	s.mu.Lock()
+	s.events[strconv.Itoa(int(event.ID))] = event
+	s.mu.Unlock()
 	return nil
 }
-func (s *Storage) DeleteEvent(event domain.Event) error {
-	delete(s.events, event.ID)
+func (s *Storage) DeleteEvent(ctx context.Context, event domain.Event) error {
+	delete(s.events, strconv.Itoa(int(event.ID)))
 	return nil
 }
-func (s *Storage) EventList() []domain.Event {
+func (s *Storage) EventList(ctx context.Context) ([]domain.Event, error) {
 	list := make([]domain.Event, 0, len(s.events))
+	s.mu.Lock()
 	for _, v := range s.events {
 		// fmt.Println("list ", v)
 		list = append(list, v)
 	}
-	return list
+	s.mu.Unlock()
+	return list, nil
 }

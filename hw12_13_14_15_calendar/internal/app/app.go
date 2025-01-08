@@ -17,10 +17,10 @@ type Logger interface {
 type Storage interface {
 	Connect(ctx context.Context) error
 	Close(ctx context.Context) error
-	CreateEvent(e domain.Event) error
-	UpdateEvent(e domain.Event) error
-	DeleteEvent(e domain.Event) error
-	EventList() []domain.Event
+	CreateEvent(ctx context.Context, e domain.Event) error
+	UpdateEvent(ctx context.Context, e domain.Event) error
+	DeleteEvent(ctx context.Context, e domain.Event) error
+	EventList(ctx context.Context) ([]domain.Event, error)
 }
 
 func New(logger Logger, storage Storage) *App {
@@ -30,20 +30,20 @@ func New(logger Logger, storage Storage) *App {
 	}
 }
 
-func (a *App) CreateEvent(ctx context.Context, id, title string) error {
-	return a.storage.CreateEvent(domain.Event{ID: id, Title: title})
+func (a *App) CreateEvent(ctx context.Context, event domain.Event) error {
+	return a.storage.CreateEvent(ctx, event)
 }
 
-func (a *App) UpdateEvent(e domain.Event) error {
-	a.storage.UpdateEvent(e)
+func (a *App) UpdateEvent(ctx context.Context, e domain.Event) error {
+	a.storage.UpdateEvent(ctx, e)
 	return nil
 }
 
-func (a *App) DeleteEvent(e domain.Event) error {
-	a.storage.DeleteEvent(e)
+func (a *App) DeleteEvent(ctx context.Context, e domain.Event) error {
+	a.storage.DeleteEvent(ctx, e)
 	return nil
 }
 
-func (a *App) EventList() []domain.Event {
-	return a.storage.EventList()
+func (a *App) EventList(ctx context.Context) ([]domain.Event, error) {
+	return a.storage.EventList(ctx)
 }

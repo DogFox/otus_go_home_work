@@ -11,11 +11,22 @@ import (
 
 	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/app"
 	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/logger"
+	domain "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/model"
 	internalhttp "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/server/http"
 	sqlstorage "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/storage/sql"
 )
 
 var configFile string
+
+var testEvent = domain.Event{
+	ID:          1,
+	Title:       "Morning Jog",
+	Date:        time.Date(2025, time.January, 8, 6, 0, 0, 0, time.UTC), // 8 Jan 2025, 06:00 UTC
+	Duration:    time.Hour * 1,                                          // 1 час
+	Description: "A refreshing morning jog through the park.",
+	User_ID:     12345,
+	TimeShift:   15, // Уведомление за 15 минут до события
+}
 
 func init() {
 	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
@@ -50,12 +61,13 @@ func main() {
 	calendar := app.New(logg, sqlstorage)
 	server := internalhttp.NewServer(logg, calendar)
 
-	calendar.CreateEvent(ctx, "test", "test")
-	calendar.CreateEvent(ctx, "test2", "test2")
-	calendar.CreateEvent(ctx, "test3", "test3")
-	calendar.CreateEvent(ctx, "test4", "test4")
+	calendar.CreateEvent(ctx, testEvent)
+	calendar.CreateEvent(ctx, testEvent)
+	calendar.CreateEvent(ctx, testEvent)
+	calendar.CreateEvent(ctx, testEvent)
+	calendar.CreateEvent(ctx, testEvent)
 
-	fmt.Println(calendar.EventList())
+	fmt.Println(calendar.EventList(ctx))
 
 	go func() {
 		<-ctx.Done()
