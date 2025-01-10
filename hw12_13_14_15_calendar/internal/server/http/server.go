@@ -3,32 +3,66 @@ package internalhttp
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"os"
+	"time"
+
+	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/logger"
 )
 
-type Server struct { // TODO
+type Server struct {
+	logg    *logger.Logger
+	app     Application
+	Addr    string
+	Handler http.Handler
 }
 
-type Logger interface { // TODO
+type Logger interface {
+	*logger.Logger
 }
 
-type Application interface { // TODO
+type Application interface{}
+
+type Handler struct{}
+
+func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch r.URL.Path {
+	case "/hello":
+		fmt.Println("hello endpoint")
+	}
 }
 
-func NewServer(logger Logger, app Application) *Server {
-	return &Server{}
+func NewServer(logger *logger.Logger, app Application, dsn string) *Server {
+
+	myHandler := &Handler{}
+	return &Server{
+		app:     app,
+		Addr:    dsn,
+		Handler: myHandler,
+		logg:    logger,
+	}
 }
 
 func (s *Server) Start(ctx context.Context) error {
-	fmt.Println("start server")
-	// TODO
+	server := &http.Server{
+		Addr:         s.Addr,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		Handler:      s.Handler,
+	}
+
+	s.logg.Infoln("start server on ", s.Addr)
+	err := server.ListenAndServe()
+	if err != nil {
+		fmt.Println(err)
+		s.logg.Errorln(err)
+	}
 
 	<-ctx.Done()
 	return nil
 }
 
 func (s *Server) Stop(ctx context.Context) error {
-	// TODO
+	os.Exit(1)
 	return nil
 }
-
-// TODO

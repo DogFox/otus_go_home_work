@@ -13,6 +13,7 @@ import (
 	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/logger"
 	domain "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/model"
 	internalhttp "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/server/http"
+	memorystorage "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/storage/sql"
 )
 
@@ -50,16 +51,20 @@ func main() {
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
 
-	// storage := memorystorage.New()
-
-	sqlstorage := sqlstorage.New(config.Database.DSN())
-	err = sqlstorage.Connect(ctx)
-	if err != nil {
-		logg.Error(err)
+	var storage app.Storage
+	switch config.Storage.Type {
+	case "postgres":
+		storage = sqlstorage.New(config.Database.DSN())
+		err = storage.Connect(ctx)
+		if err != nil {
+			logg.Error(err)
+		}
+	case "memory":
+		storage = memorystorage.New()
 	}
 
-	calendar := app.New(logg, sqlstorage)
-	server := internalhttp.NewServer(logg, calendar)
+	calendar := app.New(logg, storage)
+	server := internalhttp.NewServer(logg, calendar, config.Server.DSN())
 
 	calendar.CreateEvent(ctx, testEvent)
 	calendar.CreateEvent(ctx, testEvent)

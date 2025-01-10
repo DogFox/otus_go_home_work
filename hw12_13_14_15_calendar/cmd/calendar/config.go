@@ -13,6 +13,7 @@ type Config struct {
 	Logger   LoggerConf
 	Database DatabaseConf
 	Server   ServerConf
+	Storage  StorageConf
 }
 
 type LoggerConf struct {
@@ -57,4 +58,8 @@ func NewConfig() (*Config, error) {
 func (d *DatabaseConf) DSN() string {
 	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		d.User, d.Password, d.Host, d.Port, d.Name, d.SSL)
+}
+
+func (s *ServerConf) DSN() string {
+	return fmt.Sprintf("%s:%s", s.Host, s.Port)
 }
