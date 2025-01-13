@@ -25,20 +25,21 @@ type Application interface{}
 
 type Handler struct{}
 
-func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) ServeHTTP(_ http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/hello":
 		fmt.Println("hello endpoint")
+	case "/test":
+		fmt.Println("test")
 	}
 }
 
 func NewServer(logger *logger.Logger, app Application, dsn string) *Server {
-
 	myHandler := &Handler{}
 	return &Server{
 		app:     app,
 		Addr:    dsn,
-		Handler: myHandler,
+		Handler: loggingMiddleware(myHandler),
 		logg:    logger,
 	}
 }
@@ -62,7 +63,7 @@ func (s *Server) Start(ctx context.Context) error {
 	return nil
 }
 
-func (s *Server) Stop(ctx context.Context) error {
+func (s *Server) Stop(_ context.Context) error {
 	os.Exit(1)
 	return nil
 }

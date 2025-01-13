@@ -11,8 +11,7 @@ type App struct {
 	logger  Logger
 }
 
-type Logger interface {
-}
+type Logger interface{}
 
 type Storage interface {
 	Connect(ctx context.Context) error

@@ -1,3 +1,4 @@
+
 BIN := "./bin/calendar"
 DOCKER_IMG="calendar:develop"
 PROJECT_DIR := $(CURDIR)
@@ -40,7 +41,5 @@ create-migration:
 
 migrate:
 	docker run --rm -v ./migrations:/app/migrations $(BUILDER) -database $(POSTGRES) -path /app/migrations up
-
-
 
 .PHONY: build run build-img run-img version test lint
