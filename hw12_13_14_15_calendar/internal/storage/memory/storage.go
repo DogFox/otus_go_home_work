@@ -10,7 +10,7 @@ import (
 
 type Storage struct {
 	events map[string]domain.Event
-	mu     sync.RWMutex //nolint:unused
+	mu     sync.RWMutex
 }
 
 func New() *Storage {
@@ -19,34 +19,38 @@ func New() *Storage {
 		mu:     sync.RWMutex{},
 	}
 }
-func (s *Storage) Connect(ctx context.Context) error {
+
+func (s *Storage) Connect(_ context.Context) error {
 	// TODO
 	return nil
 }
 
-func (s *Storage) Close(ctx context.Context) error {
+func (s *Storage) Close(_ context.Context) error {
 	// TODO
 	return nil
 }
 
-func (s *Storage) CreateEvent(ctx context.Context, event domain.Event) error {
+func (s *Storage) CreateEvent(_ context.Context, event domain.Event) error {
 	s.mu.Lock()
 	event.ID = int64(len(s.events) + 1)
 	s.events[strconv.Itoa(int(event.ID))] = event
 	s.mu.Unlock()
 	return nil
 }
-func (s *Storage) UpdateEvent(ctx context.Context, event domain.Event) error {
+
+func (s *Storage) UpdateEvent(_ context.Context, event domain.Event) error {
 	s.mu.Lock()
 	s.events[strconv.Itoa(int(event.ID))] = event
 	s.mu.Unlock()
 	return nil
 }
-func (s *Storage) DeleteEvent(ctx context.Context, event domain.Event) error {
+
+func (s *Storage) DeleteEvent(_ context.Context, event domain.Event) error {
 	delete(s.events, strconv.Itoa(int(event.ID)))
 	return nil
 }
-func (s *Storage) EventList(ctx context.Context) ([]domain.Event, error) {
+
+func (s *Storage) EventList(_ context.Context) ([]domain.Event, error) {
 	list := make([]domain.Event, 0, len(s.events))
 	s.mu.Lock()
 	for _, v := range s.events {
