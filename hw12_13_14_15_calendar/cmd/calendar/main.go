@@ -41,9 +41,11 @@ func main() {
 		return
 	}
 
-	config, err := NewConfig()
+	config, err := NewConfig(configFile)
 	if err != nil {
+		fmt.Println(configFile)
 		fmt.Println(err)
+		return
 	}
 	logg := logger.New(config.Logger.Level)
 
