@@ -39,10 +39,8 @@ type StorageConf struct {
 	Type string
 }
 
-func NewConfig() (*Config, error) {
-	viper.SetConfigName("config")
-	viper.AddConfigPath("../../configs")
-	viper.SetConfigType("yaml")
+func NewConfig(configFile string) (*Config, error) {
+	viper.SetConfigFile(configFile)
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("не удалось прочитать конфиг: %w", err)
 	}
