@@ -16,7 +16,14 @@ func loggingMiddleware(next http.Handler, logger *logger.Logger) http.Handler {
 		clientIP := r.RemoteAddr
 		currentTime := time.Now().Format(time.RFC3339)
 		userAgent := r.UserAgent()
-		logger.Infof("Received request: %s %s %s from %s at %s, User-Agent: %s", method, path, httpVersion, clientIP, currentTime, userAgent)
+		logger.Infof("Received request: %s %s %s from %s at %s, User-Agent: %s",
+			method,
+			path,
+			httpVersion,
+			clientIP,
+			currentTime,
+			userAgent,
+		)
 
 		next.ServeHTTP(w, r)
 
