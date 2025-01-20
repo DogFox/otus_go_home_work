@@ -28,7 +28,8 @@ type Handler struct{}
 func (h *Handler) ServeHTTP(_ http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/hello":
-		fmt.Println("hello endpoint")
+		fmt.Println("hello endpoint do some work")
+		time.Sleep(2 * time.Second)
 	case "/test":
 		fmt.Println("test")
 	}
@@ -39,7 +40,7 @@ func NewServer(logger *logger.Logger, app Application, dsn string) *Server {
 	return &Server{
 		app:     app,
 		Addr:    dsn,
-		Handler: loggingMiddleware(myHandler),
+		Handler: loggingMiddleware(myHandler, logger),
 		logg:    logger,
 	}
 }
