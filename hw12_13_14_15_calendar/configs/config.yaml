@@ -1,0 +1,18 @@
+server:
+  host: "localhost"
+  port: 8050
+
+database:
+  user: "postgres"
+  password: "postgres"
+  name: "postgres"
+  host: "localhost"
+  port: 5432
+  ssl: "disable"
+
+logger:
+  level: "info"
+  file: "app.log"
+
+storage:
+  type: "memory"
