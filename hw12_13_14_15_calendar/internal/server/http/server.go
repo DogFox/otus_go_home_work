@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/app"
 	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/logger"
 )
 
@@ -15,6 +16,7 @@ type Server struct {
 	app     Application
 	Addr    string
 	Handler http.Handler
+	storage app.Storage
 }
 
 type Logger interface {
@@ -35,13 +37,14 @@ func (h *Handler) ServeHTTP(_ http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func NewServer(logger *logger.Logger, app Application, dsn string) *Server {
+func NewServer(logger *logger.Logger, app Application, storage app.Storage, dsn string) *Server {
 	myHandler := &Handler{}
 	return &Server{
 		app:     app,
 		Addr:    dsn,
 		Handler: loggingMiddleware(myHandler, logger),
 		logg:    logger,
+		storage: storage,
 	}
 }
 

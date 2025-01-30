@@ -4,14 +4,18 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"os"
+	"net"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"google.golang.org/grpc"
+
+	pb "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/calendar/pb"
 	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/app"
 	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/logger"
 	domain "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/model"
+	internalgrpc "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/storage/sql"
@@ -66,15 +70,7 @@ func main() {
 	}
 
 	calendar := app.New(logg, storage)
-	server := internalhttp.NewServer(logg, calendar, config.Server.DSN())
-
-	calendar.CreateEvent(ctx, testEvent)
-	calendar.CreateEvent(ctx, testEvent)
-	calendar.CreateEvent(ctx, testEvent)
-	calendar.CreateEvent(ctx, testEvent)
-	calendar.CreateEvent(ctx, testEvent)
-
-	fmt.Println(calendar.EventList(ctx))
+	server := internalhttp.NewServer(logg, calendar, storage, config.Server.DSN())
 
 	go func() {
 		<-ctx.Done()
@@ -88,14 +84,23 @@ func main() {
 	}()
 
 	logg.Info("calendar is running...")
-	// logg.Info("Это INFO сообщение")
-	// logg.Warn("Это WARN сообщение")
-	// logg.Error("Это ERROR сообщение")
-	// logg.Fatal("Это FATAL сообщение")
 
-	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
-		cancel()
-		os.Exit(1) //nolint:gocritic
+	// if err := server.Start(ctx); err != nil {
+	// 	logg.Error("failed to start http server: " + err.Error())
+	// 	cancel()
+	// 	os.Exit(1) //nolint:gocritic
+	// }
+
+	listener, err := net.Listen("tcp", ":50051")
+	if err != nil {
+		logg.Fatalf("Ошибка при запуске сервера: %v", err)
+	}
+
+	grpcServer := grpc.NewServer()
+	pb.RegisterEventsServer(grpcServer, internalgrpc.NewServer(logg, calendar, storage))
+
+	logg.Println("gRPC сервер запущен на порту 50051")
+	if err := grpcServer.Serve(listener); err != nil {
+		logg.Fatalf("Ошибка запуска сервера: %v", err)
 	}
 }
