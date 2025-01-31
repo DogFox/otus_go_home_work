@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 
@@ -70,39 +71,55 @@ func main() {
 	}
 
 	calendar := app.New(logg, storage)
-	server := internalhttp.NewServer(logg, calendar, storage, config.Server.DSN())
 
-	go func() {
-		<-ctx.Done()
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
-
-		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
-		}
-	}()
-
-	logg.Info("calendar is running...")
-
-	// if err := server.Start(ctx); err != nil {
-	// 	logg.Error("failed to start http server: " + err.Error())
-	// 	cancel()
-	// 	os.Exit(1) //nolint:gocritic
-	// }
-
-	listener, err := net.Listen("tcp", ":50051")
-	if err != nil {
-		logg.Fatalf("Ошибка при запуске сервера: %v", err)
-	}
-
+	httpServer := internalhttp.NewServer(logg, calendar, storage, config.Server.DSN())
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(internalgrpc.UnaryLoggingInterceptor(logg)),
 	)
 	pb.RegisterEventsServer(grpcServer, internalgrpc.NewServer(logg, calendar, storage))
 
-	logg.Println("gRPC сервер запущен на порту 50051")
-	if err := grpcServer.Serve(listener); err != nil {
-		logg.Fatalf("Ошибка запуска сервера: %v", err)
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		startHTTPServer(ctx, httpServer, logg)
+	}()
+
+	go func() {
+		defer wg.Done()
+		startGRPCServer(ctx, grpcServer, logg)
+	}()
+
+	wg.Wait()
+	logg.Info("calendar is running...")
+}
+
+func startHTTPServer(ctx context.Context, server *internalhttp.Server, logger *logger.Logger) error {
+	go func() {
+		<-ctx.Done()
+		if err := server.Stop(ctx); err != nil {
+			logger.Error("failed to stop http server: " + err.Error())
+		}
+		logger.Error("server stopped")
+	}()
+
+	logger.Println("http server started: ", server.Addr)
+	return server.Start(ctx)
+}
+
+func startGRPCServer(ctx context.Context, server *grpc.Server, logger *logger.Logger) error {
+	listener, err := net.Listen("tcp", ":50051")
+	if err != nil {
+		return fmt.Errorf("failed to start grpc server: %w", err)
 	}
+
+	go func() {
+		<-ctx.Done()
+		server.GracefulStop()
+		logger.Error("server stopped")
+	}()
+
+	logger.Println("grpc server started :50051")
+	return server.Serve(listener)
 }
