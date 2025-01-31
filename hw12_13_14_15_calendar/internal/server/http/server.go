@@ -42,7 +42,6 @@ func NewServer(logger *logger.Logger, app Application, storage app.Storage, dsn 
 
 	server.Handler = loggingMiddleware(mux, logger)
 	return server
-
 }
 
 func (s *Server) Start(ctx context.Context) error {
@@ -88,12 +87,13 @@ func (s *Server) GetEventList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var results []domain.Event
-	for _, event := range events {
-		// if event.Date.Format("2006-01-02") == date.Format("2006-01-02") {
-		results = append(results, event)
-		// }
-	}
+	results := make([]domain.Event, 0)
+	results = append(results, events...)
+	// for _, event := range events {
+	// if event.Date.Format("2006-01-02") == date.Format("2006-01-02") {
+	// results = append(results, event)
+	// }
+	// }
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(results)

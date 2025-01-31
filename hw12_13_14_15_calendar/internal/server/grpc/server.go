@@ -5,13 +5,12 @@ import (
 	"sync"
 	"time"
 
-	"google.golang.org/protobuf/types/known/emptypb"
-	"google.golang.org/protobuf/types/known/timestamppb"
-
 	pb "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/calendar/pb"
 	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/app"
 	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/logger"
 	domain "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/model"
+	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Server struct {
@@ -28,6 +27,7 @@ func NewServer(logger *logger.Logger, app Application, storage app.Storage) *Ser
 	return &Server{
 		app:     app,
 		storage: storage,
+		logg:    logger,
 	}
 }
 
@@ -42,7 +42,6 @@ func (s *Server) EventList(ctx context.Context, req *pb.EventListRequest) (*pb.E
 	}
 	for _, event := range events {
 		if event.Date.Format("2006-01-02") == req.Date.AsTime().Format("2006-01-02") {
-
 			results = append(results, &pb.Event{
 				Id:          event.ID,
 				Title:       event.Title,
@@ -61,7 +60,7 @@ func (s *Server) CreateEvent(ctx context.Context, req *pb.CreateEventRequest) (*
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	//на случай если захочу сериализаторы вынести
+	// на случай если захочу сериализаторы вынести
 	event := &pb.Event{
 		Title:       req.Title,
 		Date:        req.Date,
@@ -73,7 +72,7 @@ func (s *Server) CreateEvent(ctx context.Context, req *pb.CreateEventRequest) (*
 	err := s.storage.CreateEvent(ctx, domain.Event{
 		Title:       event.Title,
 		Date:        event.Date.AsTime(),
-		Duration:    time.Duration(event.Duration.AsTime().Sub(time.Unix(0, 0))),
+		Duration:    event.Duration.AsTime().Sub(time.Unix(0, 0)),
 		Description: event.Description,
 		UserID:      event.UserId,
 		TimeShift:   event.TimeShift,
@@ -102,7 +101,7 @@ func (s *Server) UpdateEvent(ctx context.Context, req *pb.UpdateEventRequest) (*
 		ID:          event.Id,
 		Title:       event.Title,
 		Date:        event.Date.AsTime(),
-		Duration:    time.Duration(event.Duration.AsTime().Sub(time.Unix(0, 0))),
+		Duration:    event.Duration.AsTime().Sub(time.Unix(0, 0)),
 		Description: event.Description,
 		UserID:      event.UserId,
 		TimeShift:   event.TimeShift,

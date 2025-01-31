@@ -8,31 +8,18 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
-	"time"
-
-	"google.golang.org/grpc"
 
 	pb "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/calendar/pb"
 	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/app"
 	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/logger"
-	domain "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/model"
 	internalgrpc "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/storage/sql"
+	"google.golang.org/grpc"
 )
 
 var configFile string
-
-var testEvent = domain.Event{
-	ID:          1,
-	Title:       "Morning Jog",
-	Date:        time.Date(2025, time.January, 8, 6, 0, 0, 0, time.UTC), // 8 Jan 2025, 06:00 UTC
-	Duration:    time.Hour * 1,                                          // 1 час
-	Description: "A refreshing morning jog through the park.",
-	UserID:      12345,
-	TimeShift:   15, // Уведомление за 15 минут до события
-}
 
 func init() {
 	flag.StringVar(&configFile, "config", "../../configs/config.yaml", "Path to configuration file")
@@ -109,7 +96,7 @@ func startHTTPServer(ctx context.Context, server *internalhttp.Server, logger *l
 }
 
 func startGRPCServer(ctx context.Context, server *grpc.Server, logger *logger.Logger) error {
-	listener, err := net.Listen("tcp", ":50051")
+	listener, err := net.Listen("tcp", "127.0.0.1:50051")
 	if err != nil {
 		return fmt.Errorf("failed to start grpc server: %w", err)
 	}
