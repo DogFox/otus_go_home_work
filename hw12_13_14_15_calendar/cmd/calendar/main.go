@@ -96,7 +96,9 @@ func main() {
 		logg.Fatalf("Ошибка при запуске сервера: %v", err)
 	}
 
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(internalgrpc.UnaryLoggingInterceptor(logg)),
+	)
 	pb.RegisterEventsServer(grpcServer, internalgrpc.NewServer(logg, calendar, storage))
 
 	logg.Println("gRPC сервер запущен на порту 50051")
