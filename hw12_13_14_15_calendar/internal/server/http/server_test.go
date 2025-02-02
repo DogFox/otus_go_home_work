@@ -53,7 +53,7 @@ func TestHttpServer(t *testing.T) {
 	server := NewServer(nil, nil, mockStorage, "")
 
 	t.Run("TestGetEventList", func(t *testing.T) {
-		events := []domain.Event{{ID: 1, Title: "Test Event", Date: time.Now()}}
+		events := []domain.Event{{ID: 1, Title: "Test Event", Date: time.Date(2025, time.February, 2, 6, 8, 23, 0, time.UTC)}}
 		mockStorage.On("EventList", mock.Anything).Return(events, nil)
 
 		r := httptest.NewRequest("GET", "/events", nil)
@@ -66,7 +66,7 @@ func TestHttpServer(t *testing.T) {
 	})
 
 	t.Run("TestCreateEvent", func(t *testing.T) {
-		event := domain.Event{Title: "New Event", Date: time.Now().Truncate(time.Second)}
+		event := domain.Event{Title: "New Event", Date: time.Date(2025, time.February, 2, 6, 8, 23, 0, time.UTC)}
 		mockStorage.On("CreateEvent", mock.Anything, event).Return(nil)
 
 		body, _ := json.Marshal(event)
