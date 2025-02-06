@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	pb "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/calendar/pb"
+	config "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/configs"
 	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/app"
 	"github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/logger"
 	internalgrpc "github.com/DogFox/otus_go_home_work/hw12_13_14_15_calendar/internal/server/grpc"
@@ -33,7 +34,7 @@ func main() {
 		return
 	}
 
-	config, err := NewConfig(configFile)
+	config, err := config.NewConfig(configFile)
 	if err != nil {
 		fmt.Println(configFile)
 		fmt.Println(err)
