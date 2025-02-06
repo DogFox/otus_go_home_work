@@ -70,7 +70,7 @@ func main() {
 				return
 			default:
 				processEvents(ctx, rmq, queueName, logg, storage)
-				cleanupOldEvents(ctx, logg, storage, config.Scheduler.Life)
+				cleanupOldEvents(ctx, storage, config.Scheduler.Life)
 				time.Sleep(config.Scheduler.Interval * time.Second)
 			}
 		}
@@ -106,6 +106,6 @@ func processEvents(ctx context.Context, rmq *rmqclient.RabbitMQClient, queueName
 	}
 }
 
-func cleanupOldEvents(ctx context.Context, logg *logger.Logger, storage app.Storage, life string) {
+func cleanupOldEvents(ctx context.Context, storage app.Storage, life string) {
 	storage.ClearEvents(ctx, life)
 }
