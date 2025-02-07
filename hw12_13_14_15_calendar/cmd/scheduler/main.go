@@ -24,7 +24,7 @@ func init() {
 	flag.StringVar(&configFile, "config", "../../configs/config.yaml", "Path to configuration file")
 }
 
-// go run ./cmd/scheduler/ -config ./configs/config.yaml
+// go run ./cmd/scheduler/ -config ./configs/config.yaml.
 func main() {
 	flag.Parse()
 
@@ -71,7 +71,7 @@ func main() {
 			default:
 				processEvents(ctx, rmq, queueName, logg, storage)
 				cleanupOldEvents(ctx, storage, config.Scheduler.Life)
-				time.Sleep(config.Scheduler.Interval * time.Second)
+				time.Sleep(config.Scheduler.Interval)
 			}
 		}
 	}()
@@ -79,7 +79,13 @@ func main() {
 	wg.Wait()
 }
 
-func processEvents(ctx context.Context, rmq *rmqclient.RabbitMQClient, queueName string, logg *logger.Logger, storage app.Storage) {
+func processEvents(
+	ctx context.Context,
+	rmq *rmqclient.RabbitMQClient,
+	queueName string,
+	logg *logger.Logger,
+	storage app.Storage,
+) {
 	events, err := storage.EventList(ctx)
 	if err != nil {
 		logg.Error("Get events error: ", err)

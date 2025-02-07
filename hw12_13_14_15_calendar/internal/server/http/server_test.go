@@ -18,7 +18,7 @@ type MockStorage struct {
 	mock.Mock
 }
 
-func (m *MockStorage) ClearEvents(ctx context.Context, life string) error {
+func (m *MockStorage) ClearEvents(ctx context.Context, _ string) error {
 	args := m.Called(ctx)
 	return args.Error(0)
 }
