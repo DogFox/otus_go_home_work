@@ -2,6 +2,7 @@ package integration_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"testing"
@@ -56,44 +57,53 @@ var event2 = domain.Event{
 
 func TestEventAPI(t *testing.T) {
 	client := &http.Client{}
+	ctx := context.Background()
 
 	body, _ := json.Marshal(event)
-	req, _ := http.NewRequest("POST", baseURL+"/events/create", bytes.NewReader(body))
+	req, _ := http.NewRequestWithContext(ctx, "POST", baseURL+"/events/create", bytes.NewReader(body))
+
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(req)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusCreated, resp.StatusCode)
+	defer resp.Body.Close()
 
 	var createdEvent map[string]interface{}
 	json.NewDecoder(resp.Body).Decode(&createdEvent)
 	// fmt.Println(createdEvent)
 	assert.Equal(t, event.Title, createdEvent["Title"])
 
-	resp, err = client.Get(baseURL + "/events")
+	req, _ = http.NewRequestWithContext(ctx, "GET", baseURL+"/events", nil)
+	resp, err = client.Do(req)
+
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	defer resp.Body.Close()
 
 	var events []map[string]interface{}
 	json.NewDecoder(resp.Body).Decode(&events)
 	assert.NotEmpty(t, events)
 
 	body, _ = json.Marshal(event2)
-	req, _ = http.NewRequest("PUT", baseURL+"/events/update", bytes.NewReader(body))
+	req, _ = http.NewRequestWithContext(ctx, "PUT", baseURL+"/events/update", bytes.NewReader(body))
+
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = client.Do(req)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	defer resp.Body.Close()
 
 	deleteReq := map[string]interface{}{
 		"id": createdEvent["id"],
 	}
 	body, _ = json.Marshal(deleteReq)
-	req, _ = http.NewRequest("DELETE", baseURL+"/events/delete", bytes.NewReader(body))
+	req, _ = http.NewRequestWithContext(ctx, "DELETE", baseURL+"/events/delete", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	resp, err = client.Do(req)
 
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	defer resp.Body.Close()
 }

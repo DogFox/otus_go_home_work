@@ -33,7 +33,7 @@ func init() {
 // 	}
 // }
 
-// go run ./cmd/calendar/ -config ./configs/config.yaml
+// go run ./cmd/calendar/ -config ./configs/config.yaml.
 func main() {
 	flag.Parse()
 
