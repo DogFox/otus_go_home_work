@@ -23,6 +23,7 @@ func New(dsn string) *Storage {
 
 func (s *Storage) Connect(ctx context.Context) error {
 	conn, err := pgx.Connect(ctx, s.dsn)
+	fmt.Println(s.dsn)
 	if err != nil {
 		return err
 	}

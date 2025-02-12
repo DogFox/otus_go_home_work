@@ -60,13 +60,14 @@ func main() {
 
 	var wg sync.WaitGroup
 	wg.Add(1)
+	logg.Info("Scheduler is ready")
 
 	go func() {
 		defer wg.Done()
 		for {
 			select {
 			case <-ctx.Done():
-				logg.Info("scheduler stopped")
+				logg.Info("Scheduler stopped")
 				return
 			default:
 				processEvents(ctx, rmq, queueName, logg, storage)

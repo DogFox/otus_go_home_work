@@ -52,4 +52,11 @@ generate:
 	--go-grpc_out=calendar/pb \
 	api/*.proto
 
-.PHONY: build run build-img run-img version test lint create-migration migrate generate
+up:
+	docker-compose up --build -d
+
+down:
+	docker-compose down
+
+
+.PHONY: build run build-img run-img version test lint create-migration migrate generate up down
