@@ -58,5 +58,9 @@ up:
 down:
 	docker-compose down
 
+integration-tests:
+	docker-compose -f docker-compose.integration.yaml up --abort-on-container-exit --exit-code-from integration-tests
+	docker-compose -f docker-compose.integration.yaml down
 
-.PHONY: build run build-img run-img version test lint create-migration migrate generate up down
+
+.PHONY: build run build-img run-img version test lint create-migration migrate generate up down integration-tests
