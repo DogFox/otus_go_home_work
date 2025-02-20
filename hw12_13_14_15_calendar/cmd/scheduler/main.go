@@ -87,7 +87,7 @@ func processEvents(
 	logg *logger.Logger,
 	storage app.Storage,
 ) {
-	events, err := storage.EventList(ctx)
+	events, err := storage.EventList(ctx, "20250219", "day")
 	if err != nil {
 		logg.Error("Get events error: ", err)
 	}

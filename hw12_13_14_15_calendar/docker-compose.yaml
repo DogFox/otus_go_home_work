@@ -67,12 +67,19 @@ services:
     image: migrate/migrate
     container_name: migrations
     volumes:
-      - ./migrations:/migrations
-    entrypoint: [ "/bin/sh", "-c", "until pg_isready -h postgres -p 5432; do sleep 1; done && migrate -path=/migrations -database postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable up" ]
+    - ./migrations:/migrations
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      until pg_isready -h postgres -p 5432 -d postgres -U postgres --timeout=30; do
+      echo "Waiting for database..."
+      sleep 5
+      done
+      migrate -path=/migrations \
+      -database postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable up
     depends_on:
-      - postgres
+    - postgres
     networks:
-      - hw
+    - hw
 
 volumes:
   rabbitmq_data:

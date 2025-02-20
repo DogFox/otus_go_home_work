@@ -23,8 +23,8 @@ func (m *MockStorage) ClearEvents(ctx context.Context, _ string) error {
 	return args.Error(0)
 }
 
-func (m *MockStorage) EventList(ctx context.Context) ([]domain.Event, error) {
-	args := m.Called(ctx)
+func (m *MockStorage) EventList(ctx context.Context, date string, listType string) ([]domain.Event, error) {
+	args := m.Called(ctx, date, listType)
 	return args.Get(0).([]domain.Event), args.Error(1)
 }
 
