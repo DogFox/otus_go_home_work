@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -67,7 +66,7 @@ func TestHttpServer(t *testing.T) {
 		events := []domain.Event{{ID: 1, Title: "Test Event", Date: time.Date(2025, time.February, 2, 6, 8, 23, 0, time.UTC)}}
 		mockStorage.On("EventList", mock.Anything, "2025-02-21", "week").Return(events, nil)
 
-		url := fmt.Sprintf("/events?date=2025-02-21&listType=week")
+		url := "/events?date=2025-02-21&listType=week"
 		r := httptest.NewRequest("GET", url, nil)
 		w := httptest.NewRecorder()
 		server.GetEventList(w, r)
