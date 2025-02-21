@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,6 +17,11 @@ import (
 
 type MockStorage struct {
 	mock.Mock
+}
+
+type Request struct {
+	Date     string `json:"date"`
+	ListType string `json:"listType"`
 }
 
 func (m *MockStorage) ClearEvents(ctx context.Context, _ string) error {
@@ -59,13 +65,12 @@ func TestHttpServer(t *testing.T) {
 
 	t.Run("TestGetEventList", func(t *testing.T) {
 		events := []domain.Event{{ID: 1, Title: "Test Event", Date: time.Date(2025, time.February, 2, 6, 8, 23, 0, time.UTC)}}
-		mockStorage.On("EventList", mock.Anything).Return(events, nil)
+		mockStorage.On("EventList", mock.Anything, "2025-02-21", "week").Return(events, nil)
 
-		r := httptest.NewRequest("GET", "/events", nil)
+		url := fmt.Sprintf("/events?date=2025-02-21&listType=week")
+		r := httptest.NewRequest("GET", url, nil)
 		w := httptest.NewRecorder()
-
 		server.GetEventList(w, r)
-
 		resp := w.Result()
 		assert.Equal(t, http.StatusOK, resp.StatusCode)
 	})
