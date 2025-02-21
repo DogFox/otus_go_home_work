@@ -78,7 +78,6 @@ func (s *Server) GetEventList(w http.ResponseWriter, r *http.Request) {
 	typeQuery := r.URL.Query().Get("listType")
 	if typeQuery == "" {
 		typeQuery = "day"
-		return
 	}
 
 	// date, err := ("20250219", dateQuery)

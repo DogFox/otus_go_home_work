@@ -14,10 +14,7 @@ build:
 	go build -v -o ./bin/calendar_sender -ldflags "$(LDFLAGS)" ./cmd/sender
 
 
-run: build
-	./bin/calendar -config ./configs/config.yaml
-	./bin/calendar_scheduler -config ./configs/config.yaml
-	./bin/calendar_sender -config ./configs/config.yaml
+run: up
 
 build-img:
 	docker build \

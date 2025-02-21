@@ -102,7 +102,7 @@ func (s *Storage) EventList(ctx context.Context, date string, listType string) (
 	case "month":
 		sqlQuery += " WHERE date >= $1 AND date < $1 + INTERVAL '1 month'"
 	}
-	rows, err := s.conn.Query(ctx, sqlQuery)
+	rows, err := s.conn.Query(ctx, sqlQuery, date)
 	if err != nil {
 		return list, err
 	}
