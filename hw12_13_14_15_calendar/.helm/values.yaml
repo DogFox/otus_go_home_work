@@ -1,7 +1,17 @@
 replicaCount: 1
 
-image:
+calendar:
   repository: calendar
+  tag: v1.0.0
+  pullPolicy: IfNotPresent
+
+scheduler:
+  repository: scheduler
+  tag: v1.0.0
+  pullPolicy: IfNotPresent
+
+sender:
+  repository: sender
   tag: v1.0.0
   pullPolicy: IfNotPresent
 

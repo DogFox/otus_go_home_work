@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-api
+  name: {{ .Release.Name }}-scheduler-api
   labels:
-    app: calendar-api
+    app: scheduler-api
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: calendar-api
+      app: scheduler-api
   template:
     metadata:
       labels:
-        app: calendar-api
+        app: scheduler-api
     spec:
       containers:
-        - name: calendar-api
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        - name: scheduler-api
+          image: {{ .Values.scheduler.repository }}:{{ .Values.scheduler.tag }}
           ports:
             - containerPort: 8888
           env:
